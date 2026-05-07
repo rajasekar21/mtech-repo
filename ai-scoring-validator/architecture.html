@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,28 +7,234 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ══════════════════════════════════════════
+     CSS custom properties — dark theme (default)
+  ══════════════════════════════════════════ */
+  :root, [data-theme="dark"] {
+    --bg:            #0d1117;
+    --bg-zone:       #131820;
+    --bg-callout:    #0d1117;
+    --border-subtle: #1e293b;
+    --text:          #e2e8f0;
+    --text-muted:    #94a3b8;
+    --text-h1:       #f1f5f9;
+
+    /* zone border colours */
+    --c-blue:   #3b82f6;
+    --c-purple: #a855f7;
+    --c-amber:  #f59e0b;
+    --c-green:  #22c55e;
+    --c-slate:  #64748b;
+    --c-teal:   #14b8a6;
+    --c-red:    #ef4444;
+
+    /* box backgrounds */
+    --bx-blue:   #0c1f3d;
+    --bx-purple: #1a0f2e;
+    --bx-amber:  #1c1200;
+    --bx-green:  #052614;
+    --bx-slate:  #111827;
+    --bx-teal:   #022c22;
+    --bx-red:    #1f0707;
+
+    /* box text */
+    --tx-blue:   #bfdbfe;
+    --tx-purple: #e9d5ff;
+    --tx-amber:  #fde68a;
+    --tx-green:  #bbf7d0;
+    --tx-slate:  #cbd5e1;
+    --tx-teal:   #99f6e4;
+    --tx-red:    #fecaca;
+
+    /* box title */
+    --tt-blue:   #93c5fd;
+    --tt-purple: #c084fc;
+    --tt-amber:  #fcd34d;
+    --tt-green:  #86efac;
+    --tt-slate:  #94a3b8;
+    --tt-teal:   #2dd4bf;
+    --tt-red:    #f87171;
+
+    /* score cells */
+    --sc1-bg: #0c1f3d; --sc1-pts: #60a5fa; --sc1-tx: #bfdbfe;
+    --sc2-bg: #1a0f2e; --sc2-pts: #c084fc; --sc2-tx: #e9d5ff;
+    --sc3-bg: #1c1200; --sc3-pts: #fcd34d; --sc3-tx: #fde68a;
+    --sc4-bg: #052614; --sc4-pts: #4ade80; --sc4-tx: #bbf7d0;
+
+    /* verdicts */
+    --promote-bg: #052614; --promote-tx: #4ade80;
+    --review-bg:  #1c1200; --review-tx:  #fbbf24;
+    --block-bg:   #1f0707; --block-tx:   #f87171;
+
+    /* callout badges */
+    --cb-primary-bg:  #1e3a5f; --cb-primary-tx:  #93c5fd;
+    --cb-fallback-bg: #1c1200; --cb-fallback-tx: #fde68a;
+    --cb-suppl-bg:    #052614; --cb-suppl-tx:    #bbf7d0;
+
+    /* chips */
+    --chip-kafka-bg: #0f172a; --chip-kafka-tx: #93c5fd;
+    --chip-log-bg:   #1a0f2e; --chip-log-tx:   #d8b4fe;
+    --chip-prom-bg:  #1c1200; --chip-prom-tx:  #fcd34d;
+
+    /* cache badge */
+    --cache-bg: #1c1200; --cache-tx: #fcd34d;
+
+    /* toggle button */
+    --toggle-bg: #1e293b; --toggle-tx: #f1f5f9; --toggle-border: #475569;
+
+    /* h1 accent */
+    --h1-accent: #38bdf8;
+
+    /* zone title colours */
+    --zt-blue:   #93c5fd;
+    --zt-purple: #d8b4fe;
+    --zt-amber:  #fcd34d;
+    --zt-green:  #86efac;
+    --zt-slate:  #94a3b8;
+
+    /* strong in callout */
+    --callout-strong-blue:  #93c5fd;
+    --callout-strong-amber: #fde68a;
+    --callout-strong-green: #bbf7d0;
+
+    /* cli strong */
+    --cli-strong: #e2e8f0;
+  }
+
+  /* ══════════════════════════════════════════
+     Light theme overrides
+  ══════════════════════════════════════════ */
+  [data-theme="light"] {
+    --bg:            #f8fafc;
+    --bg-zone:       #ffffff;
+    --bg-callout:    #f1f5f9;
+    --border-subtle: #e2e8f0;
+    --text:          #1e293b;
+    --text-muted:    #64748b;
+    --text-h1:       #0f172a;
+
+    --c-blue:   #2563eb;
+    --c-purple: #9333ea;
+    --c-amber:  #d97706;
+    --c-green:  #16a34a;
+    --c-slate:  #94a3b8;
+    --c-teal:   #0d9488;
+    --c-red:    #dc2626;
+
+    --bx-blue:   #eff6ff;
+    --bx-purple: #faf5ff;
+    --bx-amber:  #fffbeb;
+    --bx-green:  #f0fdf4;
+    --bx-slate:  #f8fafc;
+    --bx-teal:   #f0fdfa;
+    --bx-red:    #fef2f2;
+
+    --tx-blue:   #1e40af;
+    --tx-purple: #6b21a8;
+    --tx-amber:  #92400e;
+    --tx-green:  #14532d;
+    --tx-slate:  #334155;
+    --tx-teal:   #134e4a;
+    --tx-red:    #991b1b;
+
+    --tt-blue:   #1d4ed8;
+    --tt-purple: #7e22ce;
+    --tt-amber:  #b45309;
+    --tt-green:  #15803d;
+    --tt-slate:  #475569;
+    --tt-teal:   #0f766e;
+    --tt-red:    #b91c1c;
+
+    --sc1-bg: #eff6ff; --sc1-pts: #1d4ed8; --sc1-tx: #1e40af;
+    --sc2-bg: #faf5ff; --sc2-pts: #7e22ce; --sc2-tx: #6b21a8;
+    --sc3-bg: #fffbeb; --sc3-pts: #b45309; --sc3-tx: #92400e;
+    --sc4-bg: #f0fdf4; --sc4-pts: #15803d; --sc4-tx: #14532d;
+
+    --promote-bg: #f0fdf4; --promote-tx: #15803d;
+    --review-bg:  #fffbeb; --review-tx:  #b45309;
+    --block-bg:   #fef2f2; --block-tx:   #b91c1c;
+
+    --cb-primary-bg:  #dbeafe; --cb-primary-tx:  #1d4ed8;
+    --cb-fallback-bg: #fef3c7; --cb-fallback-tx: #92400e;
+    --cb-suppl-bg:    #dcfce7; --cb-suppl-tx:    #15803d;
+
+    --chip-kafka-bg: #dbeafe; --chip-kafka-tx: #1d4ed8;
+    --chip-log-bg:   #f3e8ff; --chip-log-tx:   #7e22ce;
+    --chip-prom-bg:  #fef3c7; --chip-prom-tx:  #92400e;
+
+    --cache-bg: #fef3c7; --cache-tx: #92400e;
+
+    --toggle-bg: #1e293b; --toggle-tx: #f8fafc; --toggle-border: #334155;
+
+    --h1-accent: #2563eb;
+
+    --zt-blue:   #1d4ed8;
+    --zt-purple: #7e22ce;
+    --zt-amber:  #b45309;
+    --zt-green:  #15803d;
+    --zt-slate:  #64748b;
+
+    --callout-strong-blue:  #1d4ed8;
+    --callout-strong-amber: #b45309;
+    --callout-strong-green: #15803d;
+
+    --cli-strong: #0f172a;
+  }
+
+  /* ══════════════════════════════════════════
+     Base layout
+  ══════════════════════════════════════════ */
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0d1117;
-    color: #e2e8f0;
+    background: var(--bg);
+    color: var(--text);
     min-height: 100vh;
     padding: 14px 16px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    transition: background .25s, color .25s;
+  }
+
+  /* ── Header row ── */
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 8px;
   }
 
   h1 {
     text-align: center;
     font-size: 15px;
     font-weight: 700;
-    color: #f1f5f9;
+    color: var(--text-h1);
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    border-bottom: 1px solid #1e293b;
-    padding-bottom: 8px;
   }
-  h1 span { color: #38bdf8; }
+  h1 span { color: var(--h1-accent); }
+
+  /* ── Theme toggle ── */
+  #theme-toggle {
+    position: absolute;
+    right: 0;
+    background: var(--toggle-bg);
+    color: var(--toggle-tx);
+    border: 1px solid var(--toggle-border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background .2s, color .2s;
+    white-space: nowrap;
+  }
+  #theme-toggle:hover { opacity: .85; }
 
   /* ── Legend ── */
   .legend {
@@ -37,19 +243,15 @@
     justify-content: center;
     flex-wrap: wrap;
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--text-muted);
   }
   .legend-item { display: flex; align-items: center; gap: 5px; }
   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
   /* ── Pipeline row ── */
-  .pipeline {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-  }
+  .pipeline { display: flex; align-items: stretch; gap: 0; }
 
-  /* ── Zones (vertical lanes) ── */
+  /* ── Zones ── */
   .zone {
     flex: 1;
     border: 1.5px solid;
@@ -58,16 +260,16 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    background: #131820;
+    background: var(--bg-zone);
     position: relative;
+    transition: background .25s;
   }
   .zone + .zone { margin-left: 6px; }
-
-  .zone.ingest   { border-color: #3b82f6; }
-  .zone.validate { border-color: #a855f7; }
-  .zone.score    { border-color: #f59e0b; }
-  .zone.gate     { border-color: #22c55e; }
-  .zone.infra    { border-color: #64748b; }
+  .zone.ingest   { border-color: var(--c-blue); }
+  .zone.validate { border-color: var(--c-purple); }
+  .zone.score    { border-color: var(--c-amber); }
+  .zone.gate     { border-color: var(--c-green); }
+  .zone.infra    { border-color: var(--c-slate); }
 
   .zone-title {
     text-align: center;
@@ -76,14 +278,14 @@
     letter-spacing: .8px;
     text-transform: uppercase;
     padding-bottom: 4px;
-    border-bottom: 1px solid #1e293b;
+    border-bottom: 1px solid var(--border-subtle);
     margin-bottom: 2px;
   }
-  .zone.ingest   .zone-title { color: #93c5fd; }
-  .zone.validate .zone-title { color: #d8b4fe; }
-  .zone.score    .zone-title { color: #fcd34d; }
-  .zone.gate     .zone-title { color: #86efac; }
-  .zone.infra    .zone-title { color: #94a3b8; }
+  .zone.ingest   .zone-title { color: var(--zt-blue); }
+  .zone.validate .zone-title { color: var(--zt-purple); }
+  .zone.score    .zone-title { color: var(--zt-amber); }
+  .zone.gate     .zone-title { color: var(--zt-green); }
+  .zone.infra    .zone-title { color: var(--zt-slate); }
 
   /* ── Component boxes ── */
   .box {
@@ -92,7 +294,7 @@
     font-size: 10px;
     line-height: 1.45;
     border: 1px solid;
-    position: relative;
+    transition: background .25s;
   }
   .box-title {
     font-weight: 700;
@@ -102,27 +304,25 @@
     align-items: center;
     gap: 5px;
   }
-  .box-title .icon { font-size: 13px; }
-  .box ul { padding-left: 13px; color: #94a3b8; }
+  .box ul { padding-left: 13px; color: var(--text-muted); }
   .box ul li { margin-bottom: 1px; }
 
-  /* colour variants */
-  .box.blue   { background: #0c1f3d; border-color: #3b82f6; color: #bfdbfe; }
-  .box.blue   .box-title { color: #93c5fd; }
-  .box.purple { background: #1a0f2e; border-color: #a855f7; color: #e9d5ff; }
-  .box.purple .box-title { color: #c084fc; }
-  .box.amber  { background: #1c1200; border-color: #f59e0b; color: #fde68a; }
-  .box.amber  .box-title { color: #fcd34d; }
-  .box.green  { background: #052614; border-color: #22c55e; color: #bbf7d0; }
-  .box.green  .box-title { color: #86efac; }
-  .box.slate  { background: #111827; border-color: #475569; color: #cbd5e1; }
-  .box.slate  .box-title { color: #94a3b8; }
-  .box.red    { background: #1f0707; border-color: #ef4444; color: #fecaca; }
-  .box.red    .box-title { color: #f87171; }
-  .box.teal   { background: #022c22; border-color: #14b8a6; color: #99f6e4; }
-  .box.teal   .box-title { color: #2dd4bf; }
+  .box.blue   { background: var(--bx-blue);   border-color: var(--c-blue);   color: var(--tx-blue); }
+  .box.blue   .box-title { color: var(--tt-blue); }
+  .box.purple { background: var(--bx-purple); border-color: var(--c-purple); color: var(--tx-purple); }
+  .box.purple .box-title { color: var(--tt-purple); }
+  .box.amber  { background: var(--bx-amber);  border-color: var(--c-amber);  color: var(--tx-amber); }
+  .box.amber  .box-title { color: var(--tt-amber); }
+  .box.green  { background: var(--bx-green);  border-color: var(--c-green);  color: var(--tx-green); }
+  .box.green  .box-title { color: var(--tt-green); }
+  .box.slate  { background: var(--bx-slate);  border-color: var(--c-slate);  color: var(--tx-slate); }
+  .box.slate  .box-title { color: var(--tt-slate); }
+  .box.teal   { background: var(--bx-teal);   border-color: var(--c-teal);   color: var(--tx-teal); }
+  .box.teal   .box-title { color: var(--tt-teal); }
+  .box.red    { background: var(--bx-red);    border-color: var(--c-red);    color: var(--tx-red); }
+  .box.red    .box-title { color: var(--tt-red); }
 
-  /* ── Arrow connectors between zones ── */
+  /* ── Arrow connectors ── */
   .arrow-col {
     display: flex;
     flex-direction: column;
@@ -134,29 +334,26 @@
     padding-top: 28px;
   }
   .arrow-line {
-    width: 22px;
-    height: 2px;
-    position: relative;
+    width: 22px; height: 2px; position: relative;
   }
   .arrow-line::after {
     content: '';
     position: absolute;
-    right: -1px;
-    top: -4px;
+    right: -1px; top: -4px;
     border: 5px solid transparent;
     border-left: 8px solid;
   }
-  .arrow-line.blue-arr  { background: #3b82f6; }
-  .arrow-line.blue-arr::after  { border-left-color: #3b82f6; }
-  .arrow-line.purple-arr{ background: #a855f7; }
-  .arrow-line.purple-arr::after{ border-left-color: #a855f7; }
-  .arrow-line.amber-arr { background: #f59e0b; }
-  .arrow-line.amber-arr::after { border-left-color: #f59e0b; }
-  .arrow-line.green-arr { background: #22c55e; }
-  .arrow-line.green-arr::after { border-left-color: #22c55e; }
+  .arrow-line.blue-arr   { background: var(--c-blue); }
+  .arrow-line.blue-arr::after   { border-left-color: var(--c-blue); }
+  .arrow-line.purple-arr { background: var(--c-purple); }
+  .arrow-line.purple-arr::after { border-left-color: var(--c-purple); }
+  .arrow-line.amber-arr  { background: var(--c-amber); }
+  .arrow-line.amber-arr::after  { border-left-color: var(--c-amber); }
+  .arrow-line.green-arr  { background: var(--c-green); }
+  .arrow-line.green-arr::after  { border-left-color: var(--c-green); }
   .arrow-label {
     font-size: 8px;
-    color: #64748b;
+    color: var(--text-muted);
     writing-mode: vertical-rl;
     text-orientation: mixed;
     letter-spacing: .5px;
@@ -164,148 +361,121 @@
   }
 
   /* ── Score bar ── */
-  .score-row {
-    display: flex;
-    gap: 5px;
-    flex-wrap: nowrap;
-  }
+  .score-row { display: flex; gap: 5px; flex-wrap: nowrap; }
   .score-cell {
-    flex: 1;
-    border-radius: 6px;
-    padding: 6px 7px;
-    border: 1px solid;
-    text-align: center;
-    font-size: 9.5px;
+    flex: 1; border-radius: 6px; padding: 6px 7px;
+    border: 1px solid; text-align: center; font-size: 9.5px;
+    transition: background .25s;
   }
-  .score-cell .pts {
-    font-size: 15px;
-    font-weight: 800;
-    display: block;
-    line-height: 1.1;
-  }
-  .score-cell.s1 { background:#0c1f3d; border-color:#3b82f6; color:#bfdbfe; }
-  .score-cell.s1 .pts { color:#60a5fa; }
-  .score-cell.s2 { background:#1a0f2e; border-color:#a855f7; color:#e9d5ff; }
-  .score-cell.s2 .pts { color:#c084fc; }
-  .score-cell.s3 { background:#1c1200; border-color:#f59e0b; color:#fde68a; }
-  .score-cell.s3 .pts { color:#fcd34d; }
-  .score-cell.s4 { background:#052614; border-color:#22c55e; color:#bbf7d0; }
-  .score-cell.s4 .pts { color:#4ade80; }
+  .score-cell .pts { font-size: 15px; font-weight: 800; display: block; line-height: 1.1; }
+  .score-cell.s1 { background: var(--sc1-bg); border-color: var(--c-blue);   color: var(--sc1-tx); }
+  .score-cell.s1 .pts { color: var(--sc1-pts); }
+  .score-cell.s2 { background: var(--sc2-bg); border-color: var(--c-purple); color: var(--sc2-tx); }
+  .score-cell.s2 .pts { color: var(--sc2-pts); }
+  .score-cell.s3 { background: var(--sc3-bg); border-color: var(--c-amber);  color: var(--sc3-tx); }
+  .score-cell.s3 .pts { color: var(--sc3-pts); }
+  .score-cell.s4 { background: var(--sc4-bg); border-color: var(--c-green);  color: var(--sc4-tx); }
+  .score-cell.s4 .pts { color: var(--sc4-pts); }
 
   /* ── Verdict bar ── */
-  .verdict-row {
-    display: flex;
-    gap: 5px;
-    margin-top: 2px;
-  }
+  .verdict-row { display: flex; gap: 5px; margin-top: 2px; }
   .verdict {
-    flex: 1;
-    border-radius: 6px;
-    padding: 5px 8px;
-    text-align: center;
-    font-size: 10px;
-    font-weight: 700;
-    border: 1.5px solid;
-    letter-spacing: .5px;
+    flex: 1; border-radius: 6px; padding: 5px 8px;
+    text-align: center; font-size: 10px; font-weight: 700;
+    border: 1.5px solid; letter-spacing: .5px;
+    transition: background .25s;
   }
-  .verdict.promote { background:#052614; border-color:#22c55e; color:#4ade80; }
-  .verdict.review  { background:#1c1200; border-color:#f59e0b; color:#fbbf24; }
-  .verdict.block   { background:#1f0707; border-color:#ef4444; color:#f87171; }
-  .verdict .threshold { font-size: 8px; font-weight:400; color:#94a3b8; display:block; margin-top:1px; }
+  .verdict.promote { background: var(--promote-bg); border-color: var(--c-green); color: var(--promote-tx); }
+  .verdict.review  { background: var(--review-bg);  border-color: var(--c-amber); color: var(--review-tx); }
+  .verdict.block   { background: var(--block-bg);   border-color: var(--c-red);   color: var(--block-tx); }
+  .verdict .threshold { font-size: 8px; font-weight: 400; color: var(--text-muted); display: block; margin-top: 1px; }
 
-  /* ── Bottom: Infra row ── */
-  .infra-row {
-    display: flex;
-    gap: 6px;
-  }
+  /* ── Infra row ── */
+  .infra-row { display: flex; gap: 6px; }
   .infra-row .zone { flex: 1; }
 
-  /* ── Source decision callout ── */
+  /* ── Callout ── */
   .callout {
-    border: 1px dashed #475569;
+    border: 1px dashed var(--c-slate);
     border-radius: 8px;
     padding: 7px 10px;
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--text-muted);
     display: flex;
     gap: 18px;
     flex-wrap: wrap;
     align-items: flex-start;
-    background: #0d1117;
+    background: var(--bg-callout);
+    transition: background .25s;
   }
-  .callout-head { font-weight: 700; color: #e2e8f0; font-size: 10.5px; margin-bottom: 4px; }
+  .callout-head { font-weight: 700; color: var(--text); font-size: 10.5px; margin-bottom: 4px; }
   .callout-item { flex: 1; min-width: 160px; }
   .callout-badge {
-    display: inline-block;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 4px;
-    margin-bottom: 3px;
+    display: inline-block; font-size: 9px; font-weight: 700;
+    padding: 1px 6px; border-radius: 4px; margin-bottom: 3px;
   }
-  .cb-primary  { background:#1e3a5f; color:#93c5fd; border:1px solid #3b82f6; }
-  .cb-fallback { background:#1c1200; color:#fde68a; border:1px solid #f59e0b; }
-  .cb-suppl    { background:#052614; color:#bbf7d0; border:1px solid #22c55e; }
+  .cb-primary  { background: var(--cb-primary-bg);  color: var(--cb-primary-tx);  border: 1px solid var(--c-blue); }
+  .cb-fallback { background: var(--cb-fallback-bg); color: var(--cb-fallback-tx); border: 1px solid var(--c-amber); }
+  .cb-suppl    { background: var(--cb-suppl-bg);    color: var(--cb-suppl-tx);    border: 1px solid var(--c-green); }
 
-  /* ── Prompt cache badge ── */
+  /* ── Cache badge ── */
   .cache-badge {
     display: inline-block;
-    background: #1c1200;
-    border: 1px solid #f59e0b;
-    color: #fcd34d;
-    font-size: 8.5px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 4px;
-    margin-top: 3px;
+    background: var(--cache-bg);
+    border: 1px solid var(--c-amber);
+    color: var(--cache-tx);
+    font-size: 8.5px; font-weight: 700;
+    padding: 1px 6px; border-radius: 4px; margin-top: 3px;
+    transition: background .25s;
   }
 
-  /* ── Tag chips ── */
+  /* ── Chips ── */
   .chip {
-    display: inline-block;
-    font-size: 8.5px;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-weight: 600;
+    display: inline-block; font-size: 8.5px;
+    padding: 1px 5px; border-radius: 3px; font-weight: 600;
   }
-  .chip.kafka  { background:#0f172a; border:1px solid #3b82f6; color:#93c5fd; }
-  .chip.log    { background:#1a0f2e; border:1px solid #a855f7; color:#d8b4fe; }
-  .chip.prom   { background:#1c1200; border:1px solid #f59e0b; color:#fcd34d; }
+  .chip.kafka { background: var(--chip-kafka-bg); border: 1px solid var(--c-blue);   color: var(--chip-kafka-tx); }
+  .chip.log   { background: var(--chip-log-bg);   border: 1px solid var(--c-purple); color: var(--chip-log-tx); }
+  .chip.prom  { background: var(--chip-prom-bg);  border: 1px solid var(--c-amber);  color: var(--chip-prom-tx); }
 </style>
 </head>
 <body>
 
-<h1>UPI Balance Enquiry &mdash; <span>AI-Powered Scoring Validator</span> Architecture</h1>
+<!-- ── Header ── -->
+<div class="header-row">
+  <h1>UPI Balance Enquiry &mdash; <span>AI-Powered Scoring Validator</span> Architecture</h1>
+  <button id="theme-toggle" onclick="toggleTheme()">☀️ Light</button>
+</div>
 
 <!-- ── Legend ── -->
 <div class="legend">
-  <div class="legend-item"><span class="dot" style="background:#3b82f6"></span> Ingestion</div>
-  <div class="legend-item"><span class="dot" style="background:#a855f7"></span> Validation</div>
-  <div class="legend-item"><span class="dot" style="background:#f59e0b"></span> AI Scoring</div>
-  <div class="legend-item"><span class="dot" style="background:#22c55e"></span> Gate / Promotion</div>
-  <div class="legend-item"><span class="dot" style="background:#64748b"></span> Infrastructure</div>
+  <div class="legend-item"><span class="dot" style="background:var(--c-blue)"></span> Ingestion</div>
+  <div class="legend-item"><span class="dot" style="background:var(--c-purple)"></span> Validation</div>
+  <div class="legend-item"><span class="dot" style="background:var(--c-amber)"></span> AI Scoring</div>
+  <div class="legend-item"><span class="dot" style="background:var(--c-green)"></span> Gate / Promotion</div>
+  <div class="legend-item"><span class="dot" style="background:var(--c-slate)"></span> Infrastructure</div>
 </div>
 
-<!-- ── Validation source decision callout ── -->
+<!-- ── Validation source callout ── -->
 <div class="callout">
   <div class="callout-item">
     <div class="callout-head">Validation Source Decision</div>
     <span class="callout-badge cb-primary">PRIMARY</span>
-    <strong style="color:#93c5fd"> Kafka Streams</strong> — real-time, replayable, schema-aware batches; mirrors production UPI message flow
+    <strong style="color:var(--callout-strong-blue)"> Kafka Streams</strong> — real-time, replayable, schema-aware batches; mirrors production UPI message flow
   </div>
   <div class="callout-item">
     <span class="callout-badge cb-fallback">FALLBACK</span>
-    <strong style="color:#fde68a"> Structured Logs</strong> (NDJSON) — audit sink + post-hoc revalidation when Kafka is unavailable
+    <strong style="color:var(--callout-strong-amber)"> Structured Logs</strong> (NDJSON) — audit sink + post-hoc revalidation when Kafka is unavailable
   </div>
   <div class="callout-item">
     <span class="callout-badge cb-suppl">SUPPLEMENTARY</span>
-    <strong style="color:#bbf7d0"> APM / Prometheus</strong> — latency p50/p95/p99, error rate, TPS feed into AI scoring (15 pts)
+    <strong style="color:var(--callout-strong-green)"> APM / Prometheus</strong> — latency p50/p95/p99, error rate, TPS feed into AI scoring (15 pts)
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════
      Main pipeline
-══════════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════ -->
 <div class="pipeline">
 
   <!-- Zone 1: Ingestion -->
@@ -313,7 +483,7 @@
     <div class="zone-title">① Ingestion</div>
 
     <div class="box blue">
-      <div class="box-title"><span class="icon">⚡</span> UPI Simulator</div>
+      <div class="box-title"><span>⚡</span> UPI Simulator</div>
       <ul>
         <li>75 % valid transactions</li>
         <li>15 % schema violations</li>
@@ -323,7 +493,7 @@
     </div>
 
     <div class="box slate">
-      <div class="box-title"><span class="icon">🔴</span> Live UPI Service</div>
+      <div class="box-title"><span>🔴</span> Live UPI Service</div>
       <ul>
         <li>NPCI UPI 2.0 BalEnq API</li>
         <li>txnType = BAL</li>
@@ -332,7 +502,7 @@
     </div>
 
     <div class="box blue">
-      <div class="box-title"><span class="icon">📨</span> Kafka Consumer</div>
+      <div class="box-title"><span>📨</span> Kafka Consumer</div>
       <ul>
         <li>Topic: upi.balEnq.raw</li>
         <li>Windowed batches (100 msg / 30 s)</li>
@@ -342,7 +512,7 @@
     </div>
 
     <div class="box slate">
-      <div class="box-title"><span class="icon">📄</span> Log Consumer</div>
+      <div class="box-title"><span>📄</span> Log Consumer</div>
       <ul>
         <li>NDJSON tail / batch read</li>
         <li>Audit writer sink</li>
@@ -363,21 +533,21 @@
     <div class="zone-title">② Schema Validation</div>
 
     <div class="box purple">
-      <div class="box-title"><span class="icon">📐</span> NPCI Schema Template</div>
+      <div class="box-title"><span>📐</span> NPCI Schema Template</div>
       <ul>
         <li>txnId — A-Z0-9 max 35</li>
         <li>vpa — handle@bank regex</li>
         <li>txnType — must be BAL</li>
         <li>device.mobile — 10 digits</li>
         <li>creds.hmac — non-empty</li>
-        <li>respCode=00 → all account fields required</li>
+        <li>respCode=00 → all acct fields</li>
         <li>balance ≥ 0</li>
         <li>IFSC — XXXX0XXXXXX</li>
       </ul>
     </div>
 
     <div class="box purple">
-      <div class="box-title"><span class="icon">✅</span> Schema Validator</div>
+      <div class="box-title"><span>✅</span> Schema Validator</div>
       <ul>
         <li>Pydantic model_validate()</li>
         <li>Field-level error collection</li>
@@ -387,7 +557,7 @@
     </div>
 
     <div class="box slate">
-      <div class="box-title"><span class="icon">📊</span> Batch Summary</div>
+      <div class="box-title"><span>📊</span> Batch Summary</div>
       <ul>
         <li>compliance_rate %</li>
         <li>top_errors (field freq.)</li>
@@ -408,7 +578,7 @@
     <div class="zone-title">③ AI Scoring (Claude)</div>
 
     <div class="box amber">
-      <div class="box-title"><span class="icon">🤖</span> AIScorer — claude-sonnet-4-6</div>
+      <div class="box-title"><span>🤖</span> AIScorer — claude-sonnet-4-6</div>
       <ul>
         <li>System prompt: schema reference</li>
         <li>User prompt: batch summary + APM</li>
@@ -425,7 +595,7 @@
     </div>
 
     <div class="box amber">
-      <div class="box-title"><span class="icon">📡</span> APM Collector</div>
+      <div class="box-title"><span>📡</span> APM Collector</div>
       <ul>
         <li>Latency p50 / p95 / p99</li>
         <li>Error rate %, TPS</li>
@@ -457,9 +627,9 @@
     </div>
 
     <div class="box green">
-      <div class="box-title"><span class="icon">🔐</span> Gate Rules</div>
+      <div class="box-title"><span>🔐</span> Gate Rules</div>
       <ul>
-        <li>Score recomputed from result (guards hallucination)</li>
+        <li>Score recomputed from result</li>
         <li>REVIEW → human override allowed</li>
         <li>BLOCK → fix + re-run required</li>
         <li>Full GateDecision audit trail</li>
@@ -467,7 +637,7 @@
     </div>
 
     <div class="box teal">
-      <div class="box-title"><span class="icon">🌐</span> REST API</div>
+      <div class="box-title"><span>🌐</span> REST API</div>
       <ul>
         <li>POST /simulate</li>
         <li>POST /validate</li>
@@ -488,7 +658,7 @@
     <div class="zone-title">Infrastructure</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
       <div class="box slate" style="flex:1;min-width:130px">
-        <div class="box-title"><span class="icon">🗂</span> Kafka Stack</div>
+        <div class="box-title"><span>🗂</span> Kafka Stack</div>
         <ul>
           <li>Confluent CP 7.6</li>
           <li>Zookeeper + Broker</li>
@@ -497,7 +667,7 @@
         </ul>
       </div>
       <div class="box slate" style="flex:1;min-width:130px">
-        <div class="box-title"><span class="icon">📈</span> Prometheus</div>
+        <div class="box-title"><span>📈</span> Prometheus</div>
         <ul>
           <li>Scrape: :9090</li>
           <li>upi_bal_enq_latency_bucket</li>
@@ -506,11 +676,10 @@
         </ul>
       </div>
       <div class="box slate" style="flex:1;min-width:130px">
-        <div class="box-title"><span class="icon">🐳</span> Docker Compose</div>
+        <div class="box-title"><span>🐳</span> Docker Compose</div>
         <ul>
           <li>zookeeper</li>
-          <li>kafka</li>
-          <li>kafka-ui</li>
+          <li>kafka + kafka-ui</li>
           <li>prometheus</li>
           <li>validator-api :8000</li>
         </ul>
@@ -521,15 +690,15 @@
   <div class="zone infra" style="flex:1">
     <div class="zone-title">CLI Modes</div>
     <div class="box slate">
-      <div class="box-title"><span class="icon">💻</span> main.py</div>
+      <div class="box-title"><span>💻</span> main.py</div>
       <ul>
-        <li><strong style="color:#e2e8f0">simulate</strong> — one-shot pipeline</li>
-        <li><strong style="color:#e2e8f0">serve</strong> — FastAPI REST</li>
-        <li><strong style="color:#e2e8f0">kafka</strong> — continuous stream</li>
+        <li><strong style="color:var(--cli-strong)">simulate</strong> — one-shot pipeline</li>
+        <li><strong style="color:var(--cli-strong)">serve</strong> — FastAPI REST</li>
+        <li><strong style="color:var(--cli-strong)">kafka</strong> — continuous stream</li>
       </ul>
     </div>
     <div class="box slate">
-      <div class="box-title"><span class="icon">⚙</span> Config (env vars)</div>
+      <div class="box-title"><span>⚙</span> Config (env vars)</div>
       <ul>
         <li>ANTHROPIC_API_KEY</li>
         <li>KAFKA_BOOTSTRAP_SERVERS</li>
@@ -541,6 +710,20 @@
   </div>
 
 </div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btn  = document.getElementById('theme-toggle');
+    if (html.getAttribute('data-theme') === 'dark') {
+      html.setAttribute('data-theme', 'light');
+      btn.textContent = '🌙 Dark';
+    } else {
+      html.setAttribute('data-theme', 'dark');
+      btn.textContent = '☀️ Light';
+    }
+  }
+</script>
 
 </body>
 </html>
