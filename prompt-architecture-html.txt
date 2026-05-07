@@ -55,3 +55,18 @@ STYLING:
    - DC-1 shows green "active" banner, DC-2 shows muted "standby" banner under title
    - No scrollbars. Everything fits within 100vw × 100vh using CSS grid 
      (grid-template-rows: auto auto 1fr auto)
+
+OUTPUT & HOSTING:
+   - Produce a single self-contained .html file with no external dependencies
+     (no CDN links, no separate CSS/JS files) so it works offline and can be
+     committed directly to a Git repository
+   - All styles must be in a single <style> block inside <head>
+   - All scripts (if any) must be in a single <script> block before </body>
+   - Do not use any inline base64 assets, iframes, or JS that calls external APIs
+   - The file must render correctly when viewed via HTMLPreview — paste this URL
+     in any browser to view without downloading:
+       https://htmlpreview.github.io/?https://github.com/rajasekar21/mtech-repo/blob/main/architecture_diagram.html
+   - HTMLPreview requires the file to be a valid, complete HTML document starting
+     with <!DOCTYPE html> with no missing <html>, <head>, or <body> tags
+   - Commit the file as architecture_diagram.html to the main branch of:
+     https://github.com/rajasekar21/mtech-repo
