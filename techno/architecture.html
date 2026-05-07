@@ -20,6 +20,25 @@
     gap: 5px;
   }
 
+  .theme-toggle {
+    position: fixed;
+    top: 8px;
+    right: 10px;
+    z-index: 10;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    background: #161b22;
+    color: #e2e8f0;
+    cursor: pointer;
+    font: 700 10px/1 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 6px 9px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+  }
+
+  .theme-toggle:hover {
+    background: #1f2937;
+  }
+
   h1 {
     text-align: center;
     font-size: 14px;
@@ -293,9 +312,110 @@
   }
   .leg { display: flex; align-items: center; gap: 3px; font-size: 8.5px; color: #64748b; }
   .leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Light theme */
+  body.light-theme {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  body.light-theme .theme-toggle {
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .14);
+  }
+
+  body.light-theme .theme-toggle:hover {
+    background: #e2e8f0;
+  }
+
+  body.light-theme h1 {
+    color: #0f172a;
+    border-bottom-color: #cbd5e1;
+  }
+
+  body.light-theme .repl-label,
+  body.light-theme .arrow-label {
+    background: #ffffff;
+  }
+
+  body.light-theme .dc {
+    background: #f8fafc;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
+  }
+
+  body.light-theme .dc-tag.dc1,
+  body.light-theme .dc.primary .dc-title {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-color: #3b82f6;
+  }
+
+  body.light-theme .dc-tag.dc2,
+  body.light-theme .dc.secondary .dc-title {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #22c55e;
+  }
+
+  body.light-theme .sec-label,
+  body.light-theme .leg,
+  body.light-theme .mid-pg-label {
+    color: #475569 !important;
+  }
+
+  body.light-theme .sec-label::before,
+  body.light-theme .sec-label::after,
+  body.light-theme .arrow-divider {
+    background: #cbd5e1;
+  }
+
+  body.light-theme .legend {
+    border-color: #cbd5e1;
+  }
+
+  body.light-theme .conn-line { background: #94a3b8; }
+  body.light-theme .conn-text { color: #64748b; }
+
+  body.light-theme .web-act   { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+  body.light-theme .web-sb    { background: #f1f5f9; border-color: #94a3b8; color: #334155; }
+  body.light-theme .web-dr-sb { background: #f8fafc; border-color: #cbd5e1; color: #64748b; }
+  body.light-theme .appblk    { background: #ede9fe; border-color: #7c3aed; color: #5b21b6; }
+  body.light-theme .redis-m   { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  body.light-theme .redis-s   { background: #e0e7ff; border-color: #6366f1; color: #3730a3; }
+  body.light-theme .kafka     { background: #f3e8ff; border-color: #a855f7; color: #6b21a8; }
+  body.light-theme .pg-ha     { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+  body.light-theme .pg-dr     { background: #dcfce7; border-color: #22c55e; color: #166534; }
+  body.light-theme .pg-casc   { background: #ecfdf5; border-color: #4ade80; color: #166534; }
+
+  body.light-theme .rf-badge {
+    background: #ede9fe;
+    color: #5b21b6;
+    border-color: #7c3aed;
+  }
+
+  body.light-theme .active-note.on {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+  }
+
+  body.light-theme .active-note.off {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #cbd5e1;
+  }
+
+  body.light-theme .leg[style*="border"] {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc;
+  }
 </style>
 </head>
 <body>
+
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme">Light theme</button>
 
 <h1>🏗 Dual Datacenter Architecture</h1>
 
@@ -605,6 +725,26 @@
   <div class="leg"><div class="leg-dot" style="background:#374151"></div>Web Standby</div>
   <div class="leg" style="border:1px solid #334155;padding:1px 6px;border-radius:4px;">⟶ DR stream only cross-DC</div>
 </div>
+
+<script>
+  (function () {
+    var button = document.getElementById('themeToggle');
+    var savedTheme = localStorage.getItem('architecture-theme') || 'dark';
+
+    function applyTheme(theme) {
+      var isLight = theme === 'light';
+      document.body.classList.toggle('light-theme', isLight);
+      button.textContent = isLight ? 'Dark theme' : 'Light theme';
+      button.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+      localStorage.setItem('architecture-theme', theme);
+    }
+
+    applyTheme(savedTheme);
+    button.addEventListener('click', function () {
+      applyTheme(document.body.classList.contains('light-theme') ? 'dark' : 'light');
+    });
+  }());
+</script>
 
 </body>
 </html>
