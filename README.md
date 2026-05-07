@@ -5,7 +5,6 @@ Repository workspace for MTech software Engineering batch 2025-2027.
 ## Folders
 
 - [techno](techno/) - Current architecture diagrams, prompts, and notes.
-- [AI-Scoring-Validator](AI-Scoring-Validator/) - Planned workspace for the AI scoring validator project.
 
 ## Architecture Diagram
 
