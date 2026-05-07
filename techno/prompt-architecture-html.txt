@@ -65,7 +65,7 @@ OUTPUT & HOSTING:
    - Do not use any inline base64 assets, iframes, or JS that calls external APIs
    - The file must render correctly when viewed via HTMLPreview — paste this URL
      in any browser to view without downloading:
-       https://htmlpreview.github.io/?https://github.com/rajasekar21/mtech-repo/blob/main/architecture_diagram.html
+        https://htmlpreview.github.io/?https://github.com/rajasekar21/mtech-repo/blob/main/techno/architecture.html
    - HTMLPreview requires the file to be a valid, complete HTML document starting
      with <!DOCTYPE html> with no missing <html>, <head>, or <body> tags
    - Commit the file as architecture_diagram.html to the main branch of:

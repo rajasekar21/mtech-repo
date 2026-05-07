@@ -1,5 +1,13 @@
 # mtech-repo
-Repository for MTech software Engineering batch 2025-2027.All slides and notes available in e-learning(taxila) portal.
 
+Repository workspace for MTech software Engineering batch 2025-2027.
 
-https://htmlpreview.github.io/?https://github.com/rajasekar21/mtech-repo/blob/main/architecture.html
+## Folders
+
+- [techno](techno/) - Current architecture diagrams, prompts, and notes.
+- [AI-Scoring-Validator](AI-Scoring-Validator/) - Planned workspace for the AI scoring validator project.
+
+## Architecture Diagrams
+
+- [Dark background diagram](https://htmlpreview.github.io/?https://github.com/rajasekar21/mtech-repo/blob/main/techno/architecture.html)
+- [White background diagram](https://htmlpreview.github.io/?https://github.com/rajasekar21/mtech-repo/blob/main/techno/architecture-white.html)
