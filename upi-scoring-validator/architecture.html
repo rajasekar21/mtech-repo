@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPI Balance Enquiry — AI Scoring Validator Architecture</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0d1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 8px;
+  }
+  h1 span { color: #38bdf8; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 10px;
+    color: #94a3b8;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* ── Pipeline row ── */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* ── Zones (vertical lanes) ── */
+  .zone {
+    flex: 1;
+    border: 1.5px solid;
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #131820;
+    position: relative;
+  }
+  .zone + .zone { margin-left: 6px; }
+
+  .zone.ingest   { border-color: #3b82f6; }
+  .zone.validate { border-color: #a855f7; }
+  .zone.score    { border-color: #f59e0b; }
+  .zone.gate     { border-color: #22c55e; }
+  .zone.infra    { border-color: #64748b; }
+
+  .zone-title {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 2px;
+  }
+  .zone.ingest   .zone-title { color: #93c5fd; }
+  .zone.validate .zone-title { color: #d8b4fe; }
+  .zone.score    .zone-title { color: #fcd34d; }
+  .zone.gate     .zone-title { color: #86efac; }
+  .zone.infra    .zone-title { color: #94a3b8; }
+
+  /* ── Component boxes ── */
+  .box {
+    border-radius: 7px;
+    padding: 7px 8px;
+    font-size: 10px;
+    line-height: 1.45;
+    border: 1px solid;
+    position: relative;
+  }
+  .box-title {
+    font-weight: 700;
+    font-size: 10.5px;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .box-title .icon { font-size: 13px; }
+  .box ul { padding-left: 13px; color: #94a3b8; }
+  .box ul li { margin-bottom: 1px; }
+
+  /* colour variants */
+  .box.blue   { background: #0c1f3d; border-color: #3b82f6; color: #bfdbfe; }
+  .box.blue   .box-title { color: #93c5fd; }
+  .box.purple { background: #1a0f2e; border-color: #a855f7; color: #e9d5ff; }
+  .box.purple .box-title { color: #c084fc; }
+  .box.amber  { background: #1c1200; border-color: #f59e0b; color: #fde68a; }
+  .box.amber  .box-title { color: #fcd34d; }
+  .box.green  { background: #052614; border-color: #22c55e; color: #bbf7d0; }
+  .box.green  .box-title { color: #86efac; }
+  .box.slate  { background: #111827; border-color: #475569; color: #cbd5e1; }
+  .box.slate  .box-title { color: #94a3b8; }
+  .box.red    { background: #1f0707; border-color: #ef4444; color: #fecaca; }
+  .box.red    .box-title { color: #f87171; }
+  .box.teal   { background: #022c22; border-color: #14b8a6; color: #99f6e4; }
+  .box.teal   .box-title { color: #2dd4bf; }
+
+  /* ── Arrow connectors between zones ── */
+  .arrow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    flex-shrink: 0;
+    gap: 4px;
+    padding-top: 28px;
+  }
+  .arrow-line {
+    width: 22px;
+    height: 2px;
+    position: relative;
+  }
+  .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left: 8px solid;
+  }
+  .arrow-line.blue-arr  { background: #3b82f6; }
+  .arrow-line.blue-arr::after  { border-left-color: #3b82f6; }
+  .arrow-line.purple-arr{ background: #a855f7; }
+  .arrow-line.purple-arr::after{ border-left-color: #a855f7; }
+  .arrow-line.amber-arr { background: #f59e0b; }
+  .arrow-line.amber-arr::after { border-left-color: #f59e0b; }
+  .arrow-line.green-arr { background: #22c55e; }
+  .arrow-line.green-arr::after { border-left-color: #22c55e; }
+  .arrow-label {
+    font-size: 8px;
+    color: #64748b;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: .5px;
+    white-space: nowrap;
+  }
+
+  /* ── Score bar ── */
+  .score-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+  .score-cell {
+    flex: 1;
+    border-radius: 6px;
+    padding: 6px 7px;
+    border: 1px solid;
+    text-align: center;
+    font-size: 9.5px;
+  }
+  .score-cell .pts {
+    font-size: 15px;
+    font-weight: 800;
+    display: block;
+    line-height: 1.1;
+  }
+  .score-cell.s1 { background:#0c1f3d; border-color:#3b82f6; color:#bfdbfe; }
+  .score-cell.s1 .pts { color:#60a5fa; }
+  .score-cell.s2 { background:#1a0f2e; border-color:#a855f7; color:#e9d5ff; }
+  .score-cell.s2 .pts { color:#c084fc; }
+  .score-cell.s3 { background:#1c1200; border-color:#f59e0b; color:#fde68a; }
+  .score-cell.s3 .pts { color:#fcd34d; }
+  .score-cell.s4 { background:#052614; border-color:#22c55e; color:#bbf7d0; }
+  .score-cell.s4 .pts { color:#4ade80; }
+
+  /* ── Verdict bar ── */
+  .verdict-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 2px;
+  }
+  .verdict {
+    flex: 1;
+    border-radius: 6px;
+    padding: 5px 8px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1.5px solid;
+    letter-spacing: .5px;
+  }
+  .verdict.promote { background:#052614; border-color:#22c55e; color:#4ade80; }
+  .verdict.review  { background:#1c1200; border-color:#f59e0b; color:#fbbf24; }
+  .verdict.block   { background:#1f0707; border-color:#ef4444; color:#f87171; }
+  .verdict .threshold { font-size: 8px; font-weight:400; color:#94a3b8; display:block; margin-top:1px; }
+
+  /* ── Bottom: Infra row ── */
+  .infra-row {
+    display: flex;
+    gap: 6px;
+  }
+  .infra-row .zone { flex: 1; }
+
+  /* ── Source decision callout ── */
+  .callout {
+    border: 1px dashed #475569;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 10px;
+    color: #94a3b8;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    background: #0d1117;
+  }
+  .callout-head { font-weight: 700; color: #e2e8f0; font-size: 10.5px; margin-bottom: 4px; }
+  .callout-item { flex: 1; min-width: 160px; }
+  .callout-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-bottom: 3px;
+  }
+  .cb-primary  { background:#1e3a5f; color:#93c5fd; border:1px solid #3b82f6; }
+  .cb-fallback { background:#1c1200; color:#fde68a; border:1px solid #f59e0b; }
+  .cb-suppl    { background:#052614; color:#bbf7d0; border:1px solid #22c55e; }
+
+  /* ── Prompt cache badge ── */
+  .cache-badge {
+    display: inline-block;
+    background: #1c1200;
+    border: 1px solid #f59e0b;
+    color: #fcd34d;
+    font-size: 8.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-top: 3px;
+  }
+
+  /* ── Tag chips ── */
+  .chip {
+    display: inline-block;
+    font-size: 8.5px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .chip.kafka  { background:#0f172a; border:1px solid #3b82f6; color:#93c5fd; }
+  .chip.log    { background:#1a0f2e; border:1px solid #a855f7; color:#d8b4fe; }
+  .chip.prom   { background:#1c1200; border:1px solid #f59e0b; color:#fcd34d; }
+</style>
+</head>
+<body>
+
+<h1>UPI Balance Enquiry &mdash; <span>AI-Powered Scoring Validator</span> Architecture</h1>
+
+<!-- ── Legend ── -->
+<div class="legend">
+  <div class="legend-item"><span class="dot" style="background:#3b82f6"></span> Ingestion</div>
+  <div class="legend-item"><span class="dot" style="background:#a855f7"></span> Validation</div>
+  <div class="legend-item"><span class="dot" style="background:#f59e0b"></span> AI Scoring</div>
+  <div class="legend-item"><span class="dot" style="background:#22c55e"></span> Gate / Promotion</div>
+  <div class="legend-item"><span class="dot" style="background:#64748b"></span> Infrastructure</div>
+</div>
+
+<!-- ── Validation source decision callout ── -->
+<div class="callout">
+  <div class="callout-item">
+    <div class="callout-head">Validation Source Decision</div>
+    <span class="callout-badge cb-primary">PRIMARY</span>
+    <strong style="color:#93c5fd"> Kafka Streams</strong> — real-time, replayable, schema-aware batches; mirrors production UPI message flow
+  </div>
+  <div class="callout-item">
+    <span class="callout-badge cb-fallback">FALLBACK</span>
+    <strong style="color:#fde68a"> Structured Logs</strong> (NDJSON) — audit sink + post-hoc revalidation when Kafka is unavailable
+  </div>
+  <div class="callout-item">
+    <span class="callout-badge cb-suppl">SUPPLEMENTARY</span>
+    <strong style="color:#bbf7d0"> APM / Prometheus</strong> — latency p50/p95/p99, error rate, TPS feed into AI scoring (15 pts)
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     Main pipeline
+══════════════════════════════════════════════════════════════ -->
+<div class="pipeline">
+
+  <!-- Zone 1: Ingestion -->
+  <div class="zone ingest">
+    <div class="zone-title">① Ingestion</div>
+
+    <div class="box blue">
+      <div class="box-title"><span class="icon">⚡</span> UPI Simulator</div>
+      <ul>
+        <li>75 % valid transactions</li>
+        <li>15 % schema violations</li>
+        <li>10 % edge / boundary</li>
+        <li>Kafka publish or in-process</li>
+      </ul>
+    </div>
+
+    <div class="box slate">
+      <div class="box-title"><span class="icon">🔴</span> Live UPI Service</div>
+      <ul>
+        <li>NPCI UPI 2.0 BalEnq API</li>
+        <li>txnType = BAL</li>
+        <li>PSP → Bank → NPCI</li>
+      </ul>
+    </div>
+
+    <div class="box blue">
+      <div class="box-title"><span class="icon">📨</span> Kafka Consumer</div>
+      <ul>
+        <li>Topic: upi.balEnq.raw</li>
+        <li>Windowed batches (100 msg / 30 s)</li>
+        <li>In-memory fallback if no broker</li>
+      </ul>
+      <span class="chip kafka">kafka-python</span>
+    </div>
+
+    <div class="box slate">
+      <div class="box-title"><span class="icon">📄</span> Log Consumer</div>
+      <ul>
+        <li>NDJSON tail / batch read</li>
+        <li>Audit writer sink</li>
+        <li>Glob path pattern</li>
+      </ul>
+      <span class="chip log">fallback</span>
+    </div>
+  </div>
+
+  <!-- Arrow 1→2 -->
+  <div class="arrow-col">
+    <div class="arrow-line blue-arr"></div>
+    <div class="arrow-label">raw records</div>
+  </div>
+
+  <!-- Zone 2: Schema Validation -->
+  <div class="zone validate">
+    <div class="zone-title">② Schema Validation</div>
+
+    <div class="box purple">
+      <div class="box-title"><span class="icon">📐</span> NPCI Schema Template</div>
+      <ul>
+        <li>txnId — A-Z0-9 max 35</li>
+        <li>vpa — handle@bank regex</li>
+        <li>txnType — must be BAL</li>
+        <li>device.mobile — 10 digits</li>
+        <li>creds.hmac — non-empty</li>
+        <li>respCode=00 → all account fields required</li>
+        <li>balance ≥ 0</li>
+        <li>IFSC — XXXX0XXXXXX</li>
+      </ul>
+    </div>
+
+    <div class="box purple">
+      <div class="box-title"><span class="icon">✅</span> Schema Validator</div>
+      <ul>
+        <li>Pydantic model_validate()</li>
+        <li>Field-level error collection</li>
+        <li>Request + Response pair check</li>
+        <li>3 input forms accepted</li>
+      </ul>
+    </div>
+
+    <div class="box slate">
+      <div class="box-title"><span class="icon">📊</span> Batch Summary</div>
+      <ul>
+        <li>compliance_rate %</li>
+        <li>top_errors (field freq.)</li>
+        <li>validCount / invalidCount</li>
+        <li>Per-result detail list</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Arrow 2→3 -->
+  <div class="arrow-col">
+    <div class="arrow-line purple-arr"></div>
+    <div class="arrow-label">validation results</div>
+  </div>
+
+  <!-- Zone 3: AI Scoring -->
+  <div class="zone score">
+    <div class="zone-title">③ AI Scoring (Claude)</div>
+
+    <div class="box amber">
+      <div class="box-title"><span class="icon">🤖</span> AIScorer — claude-sonnet-4-6</div>
+      <ul>
+        <li>System prompt: schema reference</li>
+        <li>User prompt: batch summary + APM</li>
+        <li>JSON-only structured output</li>
+      </ul>
+      <span class="cache-badge">⚡ Prompt Cache — schema block cached after 1st call</span>
+    </div>
+
+    <div class="score-row">
+      <div class="score-cell s1"><span class="pts">40</span>Schema<br>Compliance</div>
+      <div class="score-cell s2"><span class="pts">25</span>Field<br>Quality</div>
+      <div class="score-cell s3"><span class="pts">20</span>Anomaly<br>Patterns</div>
+      <div class="score-cell s4"><span class="pts">15</span>APM<br>Health</div>
+    </div>
+
+    <div class="box amber">
+      <div class="box-title"><span class="icon">📡</span> APM Collector</div>
+      <ul>
+        <li>Latency p50 / p95 / p99</li>
+        <li>Error rate %, TPS</li>
+        <li>Prometheus scrape (prod)</li>
+        <li>Computed from batch (dev)</li>
+      </ul>
+      <span class="chip prom">prometheus</span>
+    </div>
+  </div>
+
+  <!-- Arrow 3→4 -->
+  <div class="arrow-col">
+    <div class="arrow-line amber-arr"></div>
+    <div class="arrow-label">score 0–100</div>
+  </div>
+
+  <!-- Zone 4: Gate -->
+  <div class="zone gate">
+    <div class="zone-title">④ Deployment Gate</div>
+
+    <div class="verdict-row">
+      <div class="verdict promote">✅ PROMOTE<span class="threshold">score ≥ 85</span></div>
+    </div>
+    <div class="verdict-row">
+      <div class="verdict review">⚠ REVIEW<span class="threshold">70 – 84</span></div>
+    </div>
+    <div class="verdict-row">
+      <div class="verdict block">❌ BLOCK<span class="threshold">score &lt; 70</span></div>
+    </div>
+
+    <div class="box green">
+      <div class="box-title"><span class="icon">🔐</span> Gate Rules</div>
+      <ul>
+        <li>Score recomputed from result (guards hallucination)</li>
+        <li>REVIEW → human override allowed</li>
+        <li>BLOCK → fix + re-run required</li>
+        <li>Full GateDecision audit trail</li>
+      </ul>
+    </div>
+
+    <div class="box teal">
+      <div class="box-title"><span class="icon">🌐</span> REST API</div>
+      <ul>
+        <li>POST /simulate</li>
+        <li>POST /validate</li>
+        <li>POST /score</li>
+        <li>POST /gate/evaluate</li>
+        <li>GET  /gate/history</li>
+        <li>POST /gate/override</li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- end pipeline -->
+
+<!-- ── Infrastructure row ── -->
+<div class="infra-row">
+
+  <div class="zone infra" style="flex:2">
+    <div class="zone-title">Infrastructure</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <div class="box slate" style="flex:1;min-width:130px">
+        <div class="box-title"><span class="icon">🗂</span> Kafka Stack</div>
+        <ul>
+          <li>Confluent CP 7.6</li>
+          <li>Zookeeper + Broker</li>
+          <li>Kafka UI :8080</li>
+          <li>Topic: upi.balEnq.raw</li>
+        </ul>
+      </div>
+      <div class="box slate" style="flex:1;min-width:130px">
+        <div class="box-title"><span class="icon">📈</span> Prometheus</div>
+        <ul>
+          <li>Scrape: :9090</li>
+          <li>upi_bal_enq_latency_bucket</li>
+          <li>upi_bal_enq_errors_total</li>
+          <li>15 s scrape interval</li>
+        </ul>
+      </div>
+      <div class="box slate" style="flex:1;min-width:130px">
+        <div class="box-title"><span class="icon">🐳</span> Docker Compose</div>
+        <ul>
+          <li>zookeeper</li>
+          <li>kafka</li>
+          <li>kafka-ui</li>
+          <li>prometheus</li>
+          <li>validator-api :8000</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="zone infra" style="flex:1">
+    <div class="zone-title">CLI Modes</div>
+    <div class="box slate">
+      <div class="box-title"><span class="icon">💻</span> main.py</div>
+      <ul>
+        <li><strong style="color:#e2e8f0">simulate</strong> — one-shot pipeline</li>
+        <li><strong style="color:#e2e8f0">serve</strong> — FastAPI REST</li>
+        <li><strong style="color:#e2e8f0">kafka</strong> — continuous stream</li>
+      </ul>
+    </div>
+    <div class="box slate">
+      <div class="box-title"><span class="icon">⚙</span> Config (env vars)</div>
+      <ul>
+        <li>ANTHROPIC_API_KEY</li>
+        <li>KAFKA_BOOTSTRAP_SERVERS</li>
+        <li>PROMETHEUS_URL</li>
+        <li>PROMOTE_THRESHOLD=85</li>
+        <li>REVIEW_THRESHOLD=70</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
