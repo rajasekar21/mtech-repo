@@ -1,0 +1,57 @@
+Create a single-page, no-scroll HTML architecture diagram for a dual datacenter 
+setup (DC-1 Primary, DC-2 Secondary/DR) with a dark theme (#0d1117 background).
+
+Use a three-column layout: DC-1 panel | middle replication arrow column | DC-2 panel.
+A top banner must show the cross-DC replication rule:
+  - PostgreSQL: DR streaming replication only (DC1 → DC2)
+  - Redis & Kafka: No cross-DC replication
+
+Represent components in this exact top-to-bottom order inside each DC panel:
+
+1. WEB APPLICATION
+   - DC-1: Web Node 1 (ACTIVE, amber), Web Node 2 (STANDBY, gray)
+   - DC-2: Web Node 1 (STANDBY, gray), Web Node 2 (STANDBY, gray)
+   - Rule: Web is ACTIVE only in the DC where PostgreSQL Primary resides (DC-1).
+     DC-2 web nodes are STANDBY until failover. Show a green banner in DC-1 
+     and a muted banner in DC-2 explaining this rule.
+
+2. APPLICATION
+   - 3 nodes in each DC (purple theme, all active)
+
+3. REDIS CACHE
+   - Each DC has: Redis Master (red, Read/Write) → sync → Redis Slave (indigo, Read Only)
+   - Label section header: "No cross-DC repl."
+   - Both DCs are fully independent — no replication between them
+
+4. KAFKA CLUSTER
+   - Each DC has: 6-node cluster, Replication Factor 3 (RF-3 badge)
+   - Display as a 3×2 grid: Broker 1 (Leader, purple), Brokers 2–6 (Follower, dark purple)
+   - Label section header: "No cross-DC repl."
+   - Both DCs are fully independent — no replication between them
+
+5. POSTGRESQL
+   - DC-1: 2-node HA pair — DC1-PG-01 (PRIMARY, blue) ⟷ HA ⟷ DC1-PG-02 (HA STANDBY, blue)
+   - DC-2: 2-node DR pair — DC2-PG-01 (DR REPLICA, green) → cascade → DC2-PG-02 (CASCADE, bright green)
+   - DC2-PG-01 receives streaming replication from DC1-PG-01 (cross-DC)
+   - DC2-PG-02 cascades from DC2-PG-01 (within DC-2)
+
+MIDDLE COLUMN (between the two DC panels):
+   - Show a green directional arrow pointing DC-1 → DC-2 aligned with the PostgreSQL row
+   - Label: "DR stream"
+   - Below arrow: note "DC2-PG-02 cascades from DC2-PG-01"
+   - No arrows for Redis or Kafka rows (no cross-DC replication)
+
+STYLING:
+   - Dark background: #0d1117, DC panels: #131820
+   - DC-1 border: #3b82f6 (blue), DC-2 border: #22c55e (green)
+   - Component color coding: Web active=amber, Web standby=gray, App=purple,
+     Redis Master=red, Redis Slave=indigo, Kafka=violet, PG HA=blue,
+     PG DR=green, PG Cascade=bright green
+   - Each component block has: icon (emoji), node name, sub-label, colored badge
+   - Section headers use divider lines with uppercase labels
+   - Bottom legend with color dots for all component types
+   - Top replication banner: gradient line DC-1(blue) → DC-2(green) with arrow,
+     summarizing what replicates cross-DC and what does not
+   - DC-1 shows green "active" banner, DC-2 shows muted "standby" banner under title
+   - No scrollbars. Everything fits within 100vw × 100vh using CSS grid 
+     (grid-template-rows: auto auto 1fr auto)
