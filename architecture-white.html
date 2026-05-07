@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dual Datacenter Architecture - White Theme</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0d1117;
+    color: #e2e8f0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: 8px 10px;
+    gap: 5px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 5px;
+  }
+
+  /* ── Cross-DC replication bar ── */
+  .repl-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 28px;
+    position: relative;
+  }
+  .dc-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 1;
+  }
+  .dc-tag.dc1 { background: #1e3a5f; color: #93c5fd; border: 1px solid #3b82f6; }
+  .dc-tag.dc2 { background: #14332a; color: #86efac; border: 1px solid #22c55e; }
+
+  .repl-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    position: relative;
+  }
+  .repl-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6 0%, #22c55e 100%);
+    position: relative;
+  }
+  .repl-line::before {
+    content: '';
+    position: absolute;
+    right: 0; top: -4px;
+    border: 5px solid transparent;
+    border-left: 8px solid #22c55e;
+  }
+  .repl-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #86efac;
+    background: #0d1117;
+    padding: 0 6px;
+    margin-top: -10px;
+    position: relative;
+    white-space: nowrap;
+  }
+
+  /* ── Main layout ── */
+  .dc-wrapper {
+    display: flex;
+    gap: 0;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .dc {
+    flex: 1;
+    border: 1.5px solid;
+    border-radius: 10px;
+    padding: 7px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: #131820;
+  }
+  .dc.primary   { border-color: #3b82f6; margin-right: 5px; }
+  .dc.secondary { border-color: #22c55e; margin-left: 5px; }
+
+  .dc-title {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    align-self: center;
+    letter-spacing: .4px;
+    margin-bottom: 1px;
+  }
+  .dc.primary   .dc-title { background: #1e3a5f; color: #93c5fd; border: 1px solid #3b82f6; }
+  .dc.secondary .dc-title { background: #14332a; color: #86efac; border: 1px solid #22c55e; }
+
+  /* ── Middle column ── */
+  .mid-col {
+    width: 82px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 4px;
+    gap: 0;
+  }
+  .mid-spacer { flex: 1; }
+  .mid-pg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .mid-pg-label {
+    font-size: 7.5px;
+    font-weight: 600;
+    color: #22c55e;
+    text-align: center;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .arrow-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+  }
+  .arrow-label {
+    font-size: 7.5px;
+    color: #22c55e;
+    font-weight: 600;
+    text-align: center;
+    background: #0d1117;
+    padding: 0 4px;
+    white-space: nowrap;
+  }
+  .arrow-stem {
+    width: 2px;
+    background: #22c55e;
+    flex: 1;
+    min-height: 6px;
+  }
+  .arrow-head-down {
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #22c55e;
+  }
+  .arrow-divider {
+    width: 100%;
+    height: 1px;
+    background: #1e293b;
+    margin: 3px 0;
+  }
+
+  /* ── Sections ── */
+  .section { display: flex; flex-direction: column; gap: 3px; }
+
+  .sec-label {
+    font-size: 8.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .sec-label::before, .sec-label::after { content: ''; flex: 1; height: 1px; background: #1e293b; }
+
+  .row { display: flex; gap: 4px; justify-content: center; align-items: stretch; }
+
+  .blk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 5px 5px;
+    border-radius: 7px;
+    border: 1px solid;
+    flex: 1;
+  }
+  .blk-icon  { font-size: 14px; line-height: 1; }
+  .blk-name  { font-size: 9.5px; font-weight: 600; text-align: center; line-height: 1.2; }
+  .blk-sub   { font-size: 7.5px; text-align: center; opacity: .7; line-height: 1.3; }
+  .badge {
+    font-size: 7px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 10px;
+    margin-top: 1px;
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+
+  .conn {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    padding: 0 1px;
+  }
+  .conn-line { width: 7px; height: 1px; background: #334155; }
+  .conn-text { font-size: 7.5px; color: #475569; white-space: nowrap; }
+
+  /* Colors */
+  .web-act   { background: #1f1a00; border-color: #f59e0b; color: #fcd34d; }
+  .web-sb    { background: #181e1a; border-color: #475569; color: #94a3b8; }
+  .web-dr-sb { background: #181820; border-color: #374151; color: #6b7280; }
+  .appblk    { background: #1a1630; border-color: #7c3aed; color: #c4b5fd; }
+  .redis-m   { background: #250f08; border-color: #ef4444; color: #fca5a5; }
+  .redis-s   { background: #16162a; border-color: #6366f1; color: #a5b4fc; }
+  .kafka     { background: #1a0e26; border-color: #a855f7; color: #d8b4fe; }
+  .pg-ha     { background: #0a1f3c; border-color: #3b82f6; color: #93c5fd; }
+  .pg-dr     { background: #081e13; border-color: #22c55e; color: #86efac; }
+  .pg-casc   { background: #0b2217; border-color: #4ade80; color: #bbf7d0; }
+
+  .badge-master   { background: #ef4444; color: #fff; }
+  .badge-slave    { background: #6366f1; color: #fff; }
+  .badge-ha       { background: #2563eb; color: #fff; }
+  .badge-dr       { background: #16a34a; color: #fff; }
+  .badge-casc     { background: #4ade80; color: #052e16; }
+  .badge-leader   { background: #7c3aed; color: #fff; }
+  .badge-follower { background: #3b0764; color: #d8b4fe; }
+  .badge-active   { background: #d97706; color: #000; }
+  .badge-standby  { background: #374151; color: #9ca3af; }
+  .badge-dr-sb    { background: #1f2937; color: #6b7280; }
+  .badge-node     { background: #4c1d95; color: #e9d5ff; }
+
+  /* Kafka 3-col grid */
+  .kafka-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
+  .kafka-grid .blk { min-width: unset; flex: unset; }
+
+  .rf-badge {
+    font-size: 7px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 6px;
+    background: #2d1b4e;
+    color: #c4b5fd;
+    border: 1px solid #7c3aed;
+    margin-left: 3px;
+    vertical-align: middle;
+  }
+
+  /* Active DC indicator note */
+  .active-note {
+    font-size: 8px;
+    text-align: center;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-weight: 600;
+    letter-spacing: .3px;
+  }
+  .active-note.on  { background: #1c2a0a; color: #86efac; border: 1px solid #22c55e44; }
+  .active-note.off { background: #1a1a22; color: #4b5563; border: 1px dashed #334155; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 3px 0 1px;
+    border-top: 1px solid #1e293b;
+  }
+  .leg { display: flex; align-items: center; gap: 3px; font-size: 8.5px; color: #64748b; }
+  .leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Light theme overrides */
+  body {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  h1 {
+    color: #0f172a;
+    border-bottom-color: #cbd5e1;
+  }
+
+  .repl-label,
+  .arrow-label {
+    background: #ffffff;
+  }
+
+  .dc {
+    background: #f8fafc;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
+  }
+
+  .dc-tag.dc1,
+  .dc.primary .dc-title {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-color: #3b82f6;
+  }
+
+  .dc-tag.dc2,
+  .dc.secondary .dc-title {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #22c55e;
+  }
+
+  .sec-label,
+  .leg,
+  .mid-pg-label {
+    color: #475569;
+  }
+
+  .sec-label::before,
+  .sec-label::after,
+  .arrow-divider {
+    background: #cbd5e1;
+  }
+
+  .legend {
+    border-color: #cbd5e1;
+  }
+
+  .conn-line { background: #94a3b8; }
+  .conn-text { color: #64748b; }
+
+  .web-act   { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+  .web-sb    { background: #f1f5f9; border-color: #94a3b8; color: #334155; }
+  .web-dr-sb { background: #f8fafc; border-color: #cbd5e1; color: #64748b; }
+  .appblk    { background: #ede9fe; border-color: #7c3aed; color: #5b21b6; }
+  .redis-m   { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  .redis-s   { background: #e0e7ff; border-color: #6366f1; color: #3730a3; }
+  .kafka     { background: #f3e8ff; border-color: #a855f7; color: #6b21a8; }
+  .pg-ha     { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+  .pg-dr     { background: #dcfce7; border-color: #22c55e; color: #166534; }
+  .pg-casc   { background: #ecfdf5; border-color: #4ade80; color: #166534; }
+
+  .rf-badge {
+    background: #ede9fe;
+    color: #5b21b6;
+    border-color: #7c3aed;
+  }
+
+  .active-note.on {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+  }
+
+  .active-note.off {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #cbd5e1;
+  }
+
+  .leg[style*="border"] {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc;
+  }
+</style>
+</head>
+<body>
+
+<h1>🏗 Dual Datacenter Architecture</h1>
+
+<div class="repl-bar">
+  <div class="dc-tag dc1">DC-1 · Primary</div>
+  <div class="repl-center">
+    <div class="repl-line"></div>
+    <div class="repl-label">🐘 PostgreSQL DR Replication only &nbsp;|&nbsp; Redis · Kafka — No cross-DC replication &nbsp;|&nbsp; 🌐 Web Active follows PG Primary (DC-1)</div>
+  </div>
+  <div class="dc-tag dc2">DC-2 · Secondary</div>
+</div>
+
+<div class="dc-wrapper">
+
+  <!-- ═══ DC 1 ═══ -->
+  <div class="dc primary">
+    <div class="dc-title">🏢 Datacenter 1 — Primary</div>
+    <div class="active-note on">✅ PG Primary here — Web traffic is ACTIVE in this DC</div>
+
+    <!-- WEB -->
+    <div class="section">
+      <div class="sec-label">🌐 Web Application</div>
+      <div class="row">
+        <div class="blk web-act">
+          <div class="blk-icon">🌐</div>
+          <div class="blk-name">Web Node 1</div>
+          <div class="blk-sub">Serving traffic</div>
+          <div class="badge badge-active">ACTIVE</div>
+        </div>
+        <div class="blk web-sb">
+          <div class="blk-icon">🌐</div>
+          <div class="blk-name">Web Node 2</div>
+          <div class="blk-sub">Hot standby</div>
+          <div class="badge badge-standby">STANDBY</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div class="section">
+      <div class="sec-label">⚙️ Application — 3 Nodes</div>
+      <div class="row">
+        <div class="blk appblk">
+          <div class="blk-icon">⚙️</div>
+          <div class="blk-name">App Node 1</div>
+          <div class="badge badge-node">NODE</div>
+        </div>
+        <div class="blk appblk">
+          <div class="blk-icon">⚙️</div>
+          <div class="blk-name">App Node 2</div>
+          <div class="badge badge-node">NODE</div>
+        </div>
+        <div class="blk appblk">
+          <div class="blk-icon">⚙️</div>
+          <div class="blk-name">App Node 3</div>
+          <div class="badge badge-node">NODE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REDIS -->
+    <div class="section">
+      <div class="sec-label">🗄 Redis — No cross-DC repl.</div>
+      <div class="row">
+        <div class="blk redis-m">
+          <div class="blk-icon">🔴</div>
+          <div class="blk-name">Redis Master</div>
+          <div class="blk-sub">Read / Write</div>
+          <div class="badge badge-master">MASTER</div>
+        </div>
+        <div class="conn">
+          <div class="conn-line"></div>
+          <div class="conn-text">sync→</div>
+          <div class="conn-line"></div>
+        </div>
+        <div class="blk redis-s">
+          <div class="blk-icon">🔵</div>
+          <div class="blk-name">Redis Slave</div>
+          <div class="blk-sub">Read Only</div>
+          <div class="badge badge-slave">SLAVE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KAFKA -->
+    <div class="section">
+      <div class="sec-label">📨 Kafka — 6 Nodes <span class="rf-badge">RF-3</span> — No cross-DC repl.</div>
+      <div class="kafka-grid">
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 1</div>
+          <div class="badge badge-leader">Leader</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 2</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 3</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 4</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 5</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 6</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTGRES -->
+    <div class="section">
+      <div class="sec-label">🐘 PostgreSQL — HA Pair</div>
+      <div class="row">
+        <div class="blk pg-ha">
+          <div class="blk-icon">🐘</div>
+          <div class="blk-name">DC1-PG-01</div>
+          <div class="blk-sub">Read / Write</div>
+          <div class="badge badge-ha">PRIMARY</div>
+        </div>
+        <div class="conn">
+          <div class="conn-line"></div>
+          <div class="conn-text">⟷ HA</div>
+          <div class="conn-line"></div>
+        </div>
+        <div class="blk pg-ha">
+          <div class="blk-icon">🐘</div>
+          <div class="blk-name">DC1-PG-02</div>
+          <div class="blk-sub">Failover ready</div>
+          <div class="badge badge-ha">HA STANDBY</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- end DC1 -->
+
+  <!-- ═══ Middle: DB replication arrows ═══ -->
+  <div class="mid-col">
+    <div class="mid-spacer"></div>
+    <div class="mid-pg">
+      <div class="arrow-block" style="height:38px">
+        <div class="arrow-label">DR stream</div>
+        <div class="arrow-stem"></div>
+        <div class="arrow-head-down"></div>
+      </div>
+      <div class="arrow-divider"></div>
+      <div class="mid-pg-label" style="font-size:7.5px;color:#64748b;text-align:center;line-height:1.4">
+        DC2-PG-02<br>cascades from<br>DC2-PG-01
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DC 2 ═══ -->
+  <div class="dc secondary">
+    <div class="dc-title">🏢 Datacenter 2 — Secondary / DR</div>
+    <div class="active-note off">⏸ PG DR only — Web nodes on STANDBY until failover</div>
+
+    <!-- WEB — both standby since PG primary is in DC1 -->
+    <div class="section">
+      <div class="sec-label">🌐 Web Application</div>
+      <div class="row">
+        <div class="blk web-dr-sb">
+          <div class="blk-icon">🌐</div>
+          <div class="blk-name">Web Node 1</div>
+          <div class="blk-sub">Standby — no PG primary</div>
+          <div class="badge badge-dr-sb">STANDBY</div>
+        </div>
+        <div class="blk web-dr-sb">
+          <div class="blk-icon">🌐</div>
+          <div class="blk-name">Web Node 2</div>
+          <div class="blk-sub">Standby — no PG primary</div>
+          <div class="badge badge-dr-sb">STANDBY</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div class="section">
+      <div class="sec-label">⚙️ Application — 3 Nodes</div>
+      <div class="row">
+        <div class="blk appblk">
+          <div class="blk-icon">⚙️</div>
+          <div class="blk-name">App Node 1</div>
+          <div class="badge badge-node">NODE</div>
+        </div>
+        <div class="blk appblk">
+          <div class="blk-icon">⚙️</div>
+          <div class="blk-name">App Node 2</div>
+          <div class="badge badge-node">NODE</div>
+        </div>
+        <div class="blk appblk">
+          <div class="blk-icon">⚙️</div>
+          <div class="blk-name">App Node 3</div>
+          <div class="badge badge-node">NODE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REDIS independent -->
+    <div class="section">
+      <div class="sec-label">🗄 Redis — No cross-DC repl.</div>
+      <div class="row">
+        <div class="blk redis-m">
+          <div class="blk-icon">🔴</div>
+          <div class="blk-name">Redis Master</div>
+          <div class="blk-sub">Independent</div>
+          <div class="badge badge-master">MASTER</div>
+        </div>
+        <div class="conn">
+          <div class="conn-line"></div>
+          <div class="conn-text">sync→</div>
+          <div class="conn-line"></div>
+        </div>
+        <div class="blk redis-s">
+          <div class="blk-icon">🔵</div>
+          <div class="blk-name">Redis Slave</div>
+          <div class="blk-sub">Read Only</div>
+          <div class="badge badge-slave">SLAVE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KAFKA same setup -->
+    <div class="section">
+      <div class="sec-label">📨 Kafka — 6 Nodes <span class="rf-badge">RF-3</span> — No cross-DC repl.</div>
+      <div class="kafka-grid">
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 1</div>
+          <div class="badge badge-leader">Leader</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 2</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 3</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 4</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 5</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+        <div class="blk kafka">
+          <div class="blk-icon" style="font-size:12px">📦</div>
+          <div class="blk-name" style="font-size:8.5px">Broker 6</div>
+          <div class="badge badge-follower">Follower</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTGRES DR + Cascade -->
+    <div class="section">
+      <div class="sec-label">🐘 PostgreSQL — DR HA Pair</div>
+      <div class="row">
+        <div class="blk pg-dr">
+          <div class="blk-icon">🐘</div>
+          <div class="blk-name">DC2-PG-01</div>
+          <div class="blk-sub">← DR from DC1-PG-01</div>
+          <div class="badge badge-dr">DR REPLICA</div>
+        </div>
+        <div class="conn">
+          <div class="conn-line"></div>
+          <div class="conn-text">cascade→</div>
+          <div class="conn-line"></div>
+        </div>
+        <div class="blk pg-casc">
+          <div class="blk-icon">🐘</div>
+          <div class="blk-name">DC2-PG-02</div>
+          <div class="blk-sub">← cascade from DC2-PG-01</div>
+          <div class="badge badge-casc">CASCADE</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end DC2 -->
+</div><!-- end dc-wrapper -->
+
+<!-- Legend -->
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#ef4444"></div>Redis Master</div>
+  <div class="leg"><div class="leg-dot" style="background:#6366f1"></div>Redis Slave</div>
+  <div class="leg"><div class="leg-dot" style="background:#a855f7"></div>Kafka (RF-3)</div>
+  <div class="leg"><div class="leg-dot" style="background:#2563eb"></div>PG Primary / HA</div>
+  <div class="leg"><div class="leg-dot" style="background:#16a34a"></div>PG DR Replica</div>
+  <div class="leg"><div class="leg-dot" style="background:#4ade80"></div>PG Cascade Replica</div>
+  <div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>App Nodes</div>
+  <div class="leg"><div class="leg-dot" style="background:#d97706"></div>Web Active (DC-1 only)</div>
+  <div class="leg"><div class="leg-dot" style="background:#374151"></div>Web Standby</div>
+  <div class="leg" style="border:1px solid #334155;padding:1px 6px;border-radius:4px;">⟶ DR stream only cross-DC</div>
+</div>
+
+</body>
+</html>
