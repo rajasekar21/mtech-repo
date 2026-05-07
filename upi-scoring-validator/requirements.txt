@@ -1,0 +1,11 @@
+# Core
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+anthropic==0.40.0
+
+# Kafka (optional — falls back to in-memory queue if not installed)
+kafka-python==2.0.2
+
+# Utilities
+python-dotenv==1.0.1
