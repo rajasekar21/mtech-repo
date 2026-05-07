@@ -14,7 +14,7 @@ class Settings:
     # Kafka
     KAFKA_BOOTSTRAP_SERVERS: str = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
     KAFKA_TOPIC_RAW:         str = os.environ.get("KAFKA_TOPIC_RAW",         "upi.balEnq.raw")
-    KAFKA_GROUP_ID:          str = os.environ.get("KAFKA_GROUP_ID",          "upi-scoring-validator")
+    KAFKA_GROUP_ID:          str = os.environ.get("KAFKA_GROUP_ID",          "ai-scoring-validator")
     KAFKA_BATCH_SIZE:        int = int(os.environ.get("KAFKA_BATCH_SIZE",    "100"))
     KAFKA_BATCH_TIMEOUT_S:   int = int(os.environ.get("KAFKA_BATCH_TIMEOUT_S", "30"))
 

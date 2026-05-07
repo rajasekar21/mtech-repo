@@ -55,7 +55,7 @@ class KafkaStreamConsumer:
         self,
         bootstrap_servers: str = "localhost:9092",
         topic: str = "upi.balEnq.raw",
-        group_id: str = "upi-scoring-validator",
+        group_id: str = "ai-scoring-validator",
         batch_size: int = 100,
         batch_timeout_s: int = 30,
         fallback_to_memory: bool = True,
