@@ -2,7 +2,13 @@
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
 pydantic==2.10.3
-anthropic==0.40.0
+
+# LLM backend — Ollama (default, open-source, bare-metal)
+ollama>=0.3.3
+
+# LLM backend — Anthropic Claude (optional cloud alternative)
+# Uncomment if LLM_BACKEND=anthropic
+# anthropic>=0.40.0
 
 # Kafka (optional — falls back to in-memory queue if not installed)
 kafka-python==2.0.2

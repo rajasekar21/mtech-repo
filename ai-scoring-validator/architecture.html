@@ -584,16 +584,16 @@
 
   <!-- Zone 3: AI Scoring -->
   <div class="zone score">
-    <div class="zone-title">③ AI Scoring (Claude)</div>
+    <div class="zone-title">③ AI Scoring (Ollama)</div>
 
     <div class="box amber">
-      <div class="box-title"><span>🤖</span> AIScorer — claude-sonnet-4-6</div>
+      <div class="box-title"><span>🤖</span> AIScorer — Ollama (self-hosted)</div>
       <ul>
+        <li>Default: llama3.2 / mistral / qwen2.5</li>
         <li>System prompt: schema reference</li>
-        <li>User prompt: batch summary + APM</li>
-        <li>JSON-only structured output</li>
+        <li>JSON-mode structured output</li>
       </ul>
-      <span class="cache-badge">⚡ Prompt Cache — schema block cached after 1st call</span>
+      <span class="cache-badge">⚡ Model stays in RAM — no cold-start after 1st call</span>
     </div>
 
     <div class="score-row">
@@ -669,8 +669,8 @@
       <div class="box slate" style="flex:1;min-width:130px">
         <div class="box-title"><span>🗂</span> Kafka Stack</div>
         <ul>
-          <li>Confluent CP 7.6</li>
-          <li>Zookeeper + Broker</li>
+          <li>Apache Kafka 3.7 (KRaft)</li>
+          <li>No ZooKeeper — bare metal ready</li>
           <li>Kafka UI :8080</li>
           <li>Topic: upi.balEnq.raw</li>
         </ul>
@@ -685,11 +685,11 @@
         </ul>
       </div>
       <div class="box slate" style="flex:1;min-width:130px">
-        <div class="box-title"><span>🐳</span> Docker Compose</div>
+        <div class="box-title"><span>🐳</span> Docker / Bare Metal</div>
         <ul>
-          <li>zookeeper</li>
-          <li>kafka + kafka-ui</li>
-          <li>prometheus</li>
+          <li>ollama :11434 (MIT)</li>
+          <li>kafka + kafka-ui (Apache 2.0)</li>
+          <li>prometheus (Apache 2.0)</li>
           <li>validator-api :8000</li>
         </ul>
       </div>
@@ -709,9 +709,9 @@
     <div class="box slate">
       <div class="box-title"><span>⚙</span> Config (env vars)</div>
       <ul>
-        <li>ANTHROPIC_API_KEY</li>
+        <li>LLM_BACKEND=ollama</li>
+        <li>OLLAMA_BASE_URL / OLLAMA_MODEL</li>
         <li>KAFKA_BOOTSTRAP_SERVERS</li>
-        <li>PROMETHEUS_URL</li>
         <li>PROMOTE_THRESHOLD=85</li>
         <li>REVIEW_THRESHOLD=70</li>
       </ul>
