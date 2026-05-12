@@ -1,0 +1,852 @@
+First on HSM we have to create a partition and initilize it via luna client and change the partition policy to export insted of cloning. 
+
+Doc :- https://www.thalesdocs.com/gphsm/luna/7/docs/network/Content/admin_partition/policies/cloning_key_export.htm?Highlight=export%20mode#KeyExportMode
+
+Create a AES key using the command "openssl rand -out aeskey.bin 32" on /usr/safenet/lunaclient/bin location.
+
+And take a material ouput via "xxd -p aeskey.bin", I take that output and import that AES key material in with the key name "AESTest". 
+And change the key usages as wrap and unwrap. 
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++]
+
+>>>>>>>>>>>>>>>Now create the simple AES key in the HSM<<<<<<<<<<<<<<<<<<<<<<<<<<
+  
+[root@oracle19c bin]# ./ckdemo
+ckdemo (64-bit) v10.6.0-669. Copyright (c) 2023 Thales Group. All rights reserved.
+
+ckdemo is the property of Thales Group and is provided to our customers for
+diagnostic and development purposes only.  It is not intended for use in
+production installations.  Any re-distribution of this program in whole or
+in part is a violation of the license agreement.
+
+Modified on Aug 13 2023 at 10:16:06
+
+Starting CHRYSTOKI DEMO - SIMULATION LAB
+
+Status: Doing great, no errors (CKR_OK)
+TOKEN:
+    ( 1) Open Session  ( 2) Close Session  ( 3) Login
+    ( 4) Logout        ( 5) Change PIN     ( 6) Init Token
+    ( 7) Init Pin      ( 8) Mechanism List ( 9) Mechanism Info
+    (10) Get Info      (11) Slot Info      (12) Token Info
+    (13) Session Info  (14) Get Slot List  (15) Wait for Slot Event
+    (16) Token Status  (17) SessionCancel  (18) Factory Reset
+    (19) CloneMofN     (33) Token Insert   (34) Token Delete
+    (36) Show Roles    (37) Show Role Configuration Policies
+    (38) Show Role State   (39) Get OUID   (140) Get Handle
+    (58) HSM Zeroize       (59) Token Zeroize
+    (160) Show License List   (161) QueryLicense   (162) HSM Stats
+    (163) LogoutOther
+OBJECT MANAGEMENT:
+    (20) Create object (21) Copy object    (22) Destroy object
+    (23) Object size   (24) Get attribute  (25) Set attribute
+                       (26) Find object    (27) Display Object
+    (30) Modify Usage Count         (31) Destroy Multiple Objects
+    (32) Extract Public Key         (35) Import Public Key
+SECURITY:
+    (40) Encrypt file  (41) Decrypt file   (42) Sign
+    (43) Verify        (44) Hash file      (45) Simple Generate Key
+    (46) Digest Key
+HIGH AVAILABILITY RECOVERY :
+    (50) HA Recovery Init       (51) HA Recovery Login     (52) HA Group Status
+POLICY:
+   (53) Show Partition Policies     (54) Set Partition Policies
+   (55) Show HSM Policies (56) Set HSM Policies (57) Set Destructive HSM Policies
+KEY:
+    (60) Wrap key      (61) Unwrap key     (62) Generate random number
+    (63) Derive Key    (64) PBE Key Gen    (65) Create known keys
+    (66) Seed RNG      (67) EC User Defined Curves
+    (68) SM2 User Defined Curves
+    (69) Translate key
+CA:
+    (70) Set Domain    (71) Clone Key      (72) Set MofN
+    (73) Generate MofN (74) Activate MofN  (75) Generate Token Keys
+                                           (77) Sign Token Cert
+    (78) Generate CertCo Cert              (79) Modify MofN
+    (85) Put HSM Data/Parameter
+    (86) Dup. MofN Keys                    (87) Deactivate MofN
+    (88) Get Token Certificates            (89) Get HSM Data/Parameter
+    (112) Set Legacy Cloning Domain
+OTHERS:
+    (90) Self Test
+    (92) Get App ID
+    (93) Utilization Metrics
+    (94) Open Access    (95) Close Access
+    (97) Set App ID     (98) Options
+OFFBOARD KEY STORAGE:
+   (101) Extract Masked Object            (102) Insert Masked Object
+   (103) Multisign With Value             (104) Clone Object
+   (105) SIMExtract                       (106) SIMInsert
+   (107) SimMultiSign                     (108) SMKRollover
+   (109) CPv4 MigrateKeys
+   (118) Extract Object                   (119) Insert Object
+CLUSTER EXECUTION:
+   (111) Get Cluster State
+   (113) Lock Clustered Slot              (114) Unlock Clustered Slot
+PED INFO:
+   (120) Set Ped Info   (121) Get Ped Info (122) Init RPV
+   (123) Delete RPV
+AUDIT/LOG:
+   (130) Get Config     (131) Set Config   (132) Verify logs
+   (133) Get Time       (134) Set Time     (135) Import Secret
+   (136) Export Secret  (137) Init Audit   (138) Get Status
+   (139) Log External
+SRK:
+   (200) SRK Get State  (201) SRK Restore  (202) SRK Resplit
+   (203) SRK Zeroize    (204) SRK Enable/Disable
+Per Key Authorization:
+    (210) Authorize Key              (211) Set Authorization Data
+    (212) Reset Authorization Data   (213) Assign Key
+    (214) Increment Failed Auth Count
+Cloning API:
+    (215) CloneAsSourceInit          (216) CloneAsTargetInit
+    (217) CloneAsSource              (218) CloneAsTarget
+    (219) CPv4 MigrateKeys           (220) CPv4 Negotiate Session
+    (221) CPv4 Close Session
+IS6 Migration:
+    (300) Set IS6 Domain             (301) Insert IS6 Group Part
+    (302) Insert IS6 Member Part     (303) Insert IS6 Key
+
+(TITLE) menu titles, (99 or FULL) Full Help, (NONE) No help, (0 or EXIT) Quit
+
+
+Status: Doing great, no errors (CKR_OK)
+Enter your choice : 1
+
+Status: Doing great, no errors (CKR_OK)
+TOKEN:
+    ( 1) Open Session  ( 2) Close Session  ( 3) Login
+    ( 4) Logout        ( 5) Change PIN     ( 6) Init Token
+    ( 7) Init Pin      ( 8) Mechanism List ( 9) Mechanism Info
+    (10) Get Info      (11) Slot Info      (12) Token Info
+    (13) Session Info  (14) Get Slot List  (15) Wait for Slot Event
+    (16) Token Status  (17) SessionCancel  (18) Factory Reset
+    (19) CloneMofN     (33) Token Insert   (34) Token Delete
+    (36) Show Roles    (37) Show Role Configuration Policies
+    (38) Show Role State   (39) Get OUID   (140) Get Handle
+    (58) HSM Zeroize       (59) Token Zeroize
+    (160) Show License List   (161) QueryLicense   (162) HSM Stats
+    (163) LogoutOther
+OBJECT MANAGEMENT:
+    (20) Create object (21) Copy object    (22) Destroy object
+    (23) Object size   (24) Get attribute  (25) Set attribute
+                       (26) Find object    (27) Display Object
+    (30) Modify Usage Count         (31) Destroy Multiple Objects
+    (32) Extract Public Key         (35) Import Public Key
+SECURITY:
+    (40) Encrypt file  (41) Decrypt file   (42) Sign
+    (43) Verify        (44) Hash file      (45) Simple Generate Key
+    (46) Digest Key
+HIGH AVAILABILITY RECOVERY :
+    (50) HA Recovery Init       (51) HA Recovery Login     (52) HA Group Status
+POLICY:
+   (53) Show Partition Policies     (54) Set Partition Policies
+   (55) Show HSM Policies (56) Set HSM Policies (57) Set Destructive HSM Policies
+KEY:
+    (60) Wrap key      (61) Unwrap key     (62) Generate random number
+    (63) Derive Key    (64) PBE Key Gen    (65) Create known keys
+    (66) Seed RNG      (67) EC User Defined Curves
+    (68) SM2 User Defined Curves
+    (69) Translate key
+CA:
+    (70) Set Domain    (71) Clone Key      (72) Set MofN
+    (73) Generate MofN (74) Activate MofN  (75) Generate Token Keys
+                                           (77) Sign Token Cert
+    (78) Generate CertCo Cert              (79) Modify MofN
+    (85) Put HSM Data/Parameter
+    (86) Dup. MofN Keys                    (87) Deactivate MofN
+    (88) Get Token Certificates            (89) Get HSM Data/Parameter
+    (112) Set Legacy Cloning Domain
+OTHERS:
+    (90) Self Test
+    (92) Get App ID
+    (93) Utilization Metrics
+    (94) Open Access    (95) Close Access
+    (97) Set App ID     (98) Options
+OFFBOARD KEY STORAGE:
+   (101) Extract Masked Object            (102) Insert Masked Object
+   (103) Multisign With Value             (104) Clone Object
+   (105) SIMExtract                       (106) SIMInsert
+   (107) SimMultiSign                     (108) SMKRollover
+   (109) CPv4 MigrateKeys
+   (118) Extract Object                   (119) Insert Object
+CLUSTER EXECUTION:
+   (111) Get Cluster State
+   (113) Lock Clustered Slot              (114) Unlock Clustered Slot
+PED INFO:
+   (120) Set Ped Info   (121) Get Ped Info (122) Init RPV
+   (123) Delete RPV
+AUDIT/LOG:
+   (130) Get Config     (131) Set Config   (132) Verify logs
+   (133) Get Time       (134) Set Time     (135) Import Secret
+   (136) Export Secret  (137) Init Audit   (138) Get Status
+   (139) Log External
+SRK:
+   (200) SRK Get State  (201) SRK Restore  (202) SRK Resplit
+   (203) SRK Zeroize    (204) SRK Enable/Disable
+Per Key Authorization:
+    (210) Authorize Key              (211) Set Authorization Data
+    (212) Reset Authorization Data   (213) Assign Key
+    (214) Increment Failed Auth Count
+Cloning API:
+    (215) CloneAsSourceInit          (216) CloneAsTargetInit
+    (217) CloneAsSource              (218) CloneAsTarget
+    (219) CPv4 MigrateKeys           (220) CPv4 Negotiate Session
+    (221) CPv4 Close Session
+IS6 Migration:
+    (300) Set IS6 Domain             (301) Insert IS6 Group Part
+    (302) Insert IS6 Member Part     (303) Insert IS6 Key
+
+(TITLE) menu titles, (99 or FULL) Full Help, (NONE) No help, (0 or EXIT) Quit
+
+
+Status: Doing great, no errors (CKR_OK)
+Enter your choice : 3
+Partition SO            [0]
+Crypto Officer          [1]
+Crypto User             [2]: 1
+Enter PIN            : *********
+
+
+Status: Doing great, no errors (CKR_OK)
+TOKEN:
+    ( 1) Open Session  ( 2) Close Session  ( 3) Login
+    ( 4) Logout        ( 5) Change PIN     ( 6) Init Token
+    ( 7) Init Pin      ( 8) Mechanism List ( 9) Mechanism Info
+    (10) Get Info      (11) Slot Info      (12) Token Info
+    (13) Session Info  (14) Get Slot List  (15) Wait for Slot Event
+    (16) Token Status  (17) SessionCancel  (18) Factory Reset
+    (19) CloneMofN     (33) Token Insert   (34) Token Delete
+    (36) Show Roles    (37) Show Role Configuration Policies
+    (38) Show Role State   (39) Get OUID   (140) Get Handle
+    (58) HSM Zeroize       (59) Token Zeroize
+    (160) Show License List   (161) QueryLicense   (162) HSM Stats
+    (163) LogoutOther
+OBJECT MANAGEMENT:
+    (20) Create object (21) Copy object    (22) Destroy object
+    (23) Object size   (24) Get attribute  (25) Set attribute
+                       (26) Find object    (27) Display Object
+    (30) Modify Usage Count         (31) Destroy Multiple Objects
+    (32) Extract Public Key         (35) Import Public Key
+SECURITY:
+    (40) Encrypt file  (41) Decrypt file   (42) Sign
+    (43) Verify        (44) Hash file      (45) Simple Generate Key
+    (46) Digest Key
+HIGH AVAILABILITY RECOVERY :
+    (50) HA Recovery Init       (51) HA Recovery Login     (52) HA Group Status
+POLICY:
+   (53) Show Partition Policies     (54) Set Partition Policies
+   (55) Show HSM Policies (56) Set HSM Policies (57) Set Destructive HSM Policies
+KEY:
+    (60) Wrap key      (61) Unwrap key     (62) Generate random number
+    (63) Derive Key    (64) PBE Key Gen    (65) Create known keys
+    (66) Seed RNG      (67) EC User Defined Curves
+    (68) SM2 User Defined Curves
+    (69) Translate key
+CA:
+    (70) Set Domain    (71) Clone Key      (72) Set MofN
+    (73) Generate MofN (74) Activate MofN  (75) Generate Token Keys
+                                           (77) Sign Token Cert
+    (78) Generate CertCo Cert              (79) Modify MofN
+    (85) Put HSM Data/Parameter
+    (86) Dup. MofN Keys                    (87) Deactivate MofN
+    (88) Get Token Certificates            (89) Get HSM Data/Parameter
+    (112) Set Legacy Cloning Domain
+OTHERS:
+    (90) Self Test
+    (92) Get App ID
+    (93) Utilization Metrics
+    (94) Open Access    (95) Close Access
+    (97) Set App ID     (98) Options
+OFFBOARD KEY STORAGE:
+   (101) Extract Masked Object            (102) Insert Masked Object
+   (103) Multisign With Value             (104) Clone Object
+   (105) SIMExtract                       (106) SIMInsert
+   (107) SimMultiSign                     (108) SMKRollover
+   (109) CPv4 MigrateKeys
+   (118) Extract Object                   (119) Insert Object
+CLUSTER EXECUTION:
+   (111) Get Cluster State
+   (113) Lock Clustered Slot              (114) Unlock Clustered Slot
+PED INFO:
+   (120) Set Ped Info   (121) Get Ped Info (122) Init RPV
+   (123) Delete RPV
+AUDIT/LOG:
+   (130) Get Config     (131) Set Config   (132) Verify logs
+   (133) Get Time       (134) Set Time     (135) Import Secret
+   (136) Export Secret  (137) Init Audit   (138) Get Status
+   (139) Log External
+SRK:
+   (200) SRK Get State  (201) SRK Restore  (202) SRK Resplit
+   (203) SRK Zeroize    (204) SRK Enable/Disable
+Per Key Authorization:
+    (210) Authorize Key              (211) Set Authorization Data
+    (212) Reset Authorization Data   (213) Assign Key
+    (214) Increment Failed Auth Count
+Cloning API:
+    (215) CloneAsSourceInit          (216) CloneAsTargetInit
+    (217) CloneAsSource              (218) CloneAsTarget
+    (219) CPv4 MigrateKeys           (220) CPv4 Negotiate Session
+    (221) CPv4 Close Session
+IS6 Migration:
+    (300) Set IS6 Domain             (301) Insert IS6 Group Part
+    (302) Insert IS6 Member Part     (303) Insert IS6 Key
+
+(TITLE) menu titles, (99 or FULL) Full Help, (NONE) No help, (0 or EXIT) Quit
+
+
+Status: Doing great, no errors (CKR_OK)
+Enter your choice : 45
+Select type of key to generate
+[ 1] DES     [ 2] DES2   [ 3] DES3             [ 5]  CAST3
+[ 6] Generic [ 7] RSA    [ 8] DSA   [ 9] DH    [10]  CAST5
+[11] RC2     [12] RC4    [13] RC5   [14] SSL3  [15]  ECDSA
+[16] AES     [17] SEED   [18] KCDSA-1024   [19] KCDSA-2048
+[20] DSA Domain Param    [21] KCDSA Domain Param
+[22] RSA X9.31           [23] DH X9.42         [24] ARIA
+[25] DH PKCS Domain Param [26] RSA 186-3 Aux Primes
+[27] RSA 186-3 Primes     [28] DH X9.42 Domain Param
+[29] ECDSA with Extra Bits [30] EC Edwards 25519
+[31] EC Montgomery 25519
+[32] EC Edwards 448
+[33] EC Montgomery 448
+[40] SM4 [41] SM2
+> 16
+
+Enter Key Length in bytes (16, 24, 32): 32
+
+Enter Is Token Attribute [0-1]: 1
+
+Enter Is Sensitive Attribute [0-1]: 1
+
+Enter Is Private Attribute [0-1]: 1
+
+Enter Is Modifiable Attribute [0-1]: 1
+
+Enter Encrypt Attribute [0-1]: 1
+
+Enter Decrypt Attribute [0-1]: 1
+
+Enter Sign Attribute [0-1]: 1
+
+Enter Verify Attribute [0-1]: 1
+
+Enter Wrap Attribute [0-1]: 1
+
+Enter Unwrap Attribute [0-1]: 1
+
+Enter Derive Attribute [0-1]: 1
+
+Enter Extractable Attribute [0-1]: 1
+Generated AES Key:        309 (0x00000135)
+
+Status: Doing great, no errors (CKR_OK)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Now we wrap the openssl AES key via the AES key we created in HSM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+Status: Doing great, no errors (CKR_OK)
+TOKEN:
+    ( 1) Open Session  ( 2) Close Session  ( 3) Login
+    ( 4) Logout        ( 5) Change PIN     ( 6) Init Token
+    ( 7) Init Pin      ( 8) Mechanism List ( 9) Mechanism Info
+    (10) Get Info      (11) Slot Info      (12) Token Info
+    (13) Session Info  (14) Get Slot List  (15) Wait for Slot Event
+    (16) Token Status  (17) SessionCancel  (18) Factory Reset
+    (19) CloneMofN     (33) Token Insert   (34) Token Delete
+    (36) Show Roles    (37) Show Role Configuration Policies
+    (38) Show Role State   (39) Get OUID   (140) Get Handle
+    (58) HSM Zeroize       (59) Token Zeroize
+    (160) Show License List   (161) QueryLicense   (162) HSM Stats
+    (163) LogoutOther
+OBJECT MANAGEMENT:
+    (20) Create object (21) Copy object    (22) Destroy object
+    (23) Object size   (24) Get attribute  (25) Set attribute
+                       (26) Find object    (27) Display Object
+    (30) Modify Usage Count         (31) Destroy Multiple Objects
+    (32) Extract Public Key         (35) Import Public Key
+SECURITY:
+    (40) Encrypt file  (41) Decrypt file   (42) Sign
+    (43) Verify        (44) Hash file      (45) Simple Generate Key
+    (46) Digest Key
+HIGH AVAILABILITY RECOVERY :
+    (50) HA Recovery Init       (51) HA Recovery Login     (52) HA Group Status
+POLICY:
+   (53) Show Partition Policies     (54) Set Partition Policies
+   (55) Show HSM Policies (56) Set HSM Policies (57) Set Destructive HSM Policies
+KEY:
+    (60) Wrap key      (61) Unwrap key     (62) Generate random number
+    (63) Derive Key    (64) PBE Key Gen    (65) Create known keys
+    (66) Seed RNG      (67) EC User Defined Curves
+    (68) SM2 User Defined Curves
+    (69) Translate key
+CA:
+    (70) Set Domain    (71) Clone Key      (72) Set MofN
+    (73) Generate MofN (74) Activate MofN  (75) Generate Token Keys
+                                           (77) Sign Token Cert
+    (78) Generate CertCo Cert              (79) Modify MofN
+    (85) Put HSM Data/Parameter
+    (86) Dup. MofN Keys                    (87) Deactivate MofN
+    (88) Get Token Certificates            (89) Get HSM Data/Parameter
+    (112) Set Legacy Cloning Domain
+OTHERS:
+    (90) Self Test
+    (92) Get App ID
+    (93) Utilization Metrics
+    (94) Open Access    (95) Close Access
+    (97) Set App ID     (98) Options
+OFFBOARD KEY STORAGE:
+   (101) Extract Masked Object            (102) Insert Masked Object
+   (103) Multisign With Value             (104) Clone Object
+   (105) SIMExtract                       (106) SIMInsert
+   (107) SimMultiSign                     (108) SMKRollover
+   (109) CPv4 MigrateKeys
+   (118) Extract Object                   (119) Insert Object
+CLUSTER EXECUTION:
+   (111) Get Cluster State
+   (113) Lock Clustered Slot              (114) Unlock Clustered Slot
+PED INFO:
+   (120) Set Ped Info   (121) Get Ped Info (122) Init RPV
+   (123) Delete RPV
+AUDIT/LOG:
+   (130) Get Config     (131) Set Config   (132) Verify logs
+   (133) Get Time       (134) Set Time     (135) Import Secret
+   (136) Export Secret  (137) Init Audit   (138) Get Status
+   (139) Log External
+SRK:
+   (200) SRK Get State  (201) SRK Restore  (202) SRK Resplit
+   (203) SRK Zeroize    (204) SRK Enable/Disable
+Per Key Authorization:
+    (210) Authorize Key              (211) Set Authorization Data
+    (212) Reset Authorization Data   (213) Assign Key
+    (214) Increment Failed Auth Count
+Cloning API:
+    (215) CloneAsSourceInit          (216) CloneAsTargetInit
+    (217) CloneAsSource              (218) CloneAsTarget
+    (219) CPv4 MigrateKeys           (220) CPv4 Negotiate Session
+    (221) CPv4 Close Session
+IS6 Migration:
+    (300) Set IS6 Domain             (301) Insert IS6 Group Part
+    (302) Insert IS6 Member Part     (303) Insert IS6 Key
+
+(TITLE) menu titles, (99 or FULL) Full Help, (NONE) No help, (0 or EXIT) Quit
+
+
+Status: Doing great, no errors (CKR_OK)
+Enter your choice : 40
+[ 1] DES-CBC       [ 2] DES3-CBC      [ 3] DES3-CTR      [ 4] CAST3-CBC
+[ 5] DES-ECB       [ 6] DES3-ECB      [ 7] AES-CTR       [ 8] CAST3-ECB
+[ 9] RC2-ECB       [10] RC2-CBC       [11] CAST5-ECB     [12] CAST5-CBC
+[13] RC4           [14] RC5-ECB       [15] RC5-CBC       [16] RAW-RSA
+[17] DES-CBC-PAD   [18] DES3-CBC-PAD  [19] DES3-CBC-PAD-IPSEC
+[20] RC2-CBC-PAD   [21] RC5-CBC-PAD   [22] CAST3-CBC-PAD [23] CAST5-CBC-PAD
+[24] SEED-ECB      [25] SEED-CBC      [26] SEED-CBC-PAD
+[27] AES-ECB       [28] AES-CBC       [29] AES-CBC-PAD   [30] AES-CBC-PAD-IPSEC
+[31] ARIA-ECB      [32] ARIA-CBC      [33] ARIA-CBC-PAD
+[34] RSA-PKCS      [35] DES3-CFB8     [36] DES3-CFB64    [37] DES3-OFB
+[38] AES-CFB8      [39] AES-CFB128    [40] AES-OFB       [41] ARIA-CFB8
+[42] ARIA-CFB128   [43] ARIA-OFB      [44] AES-GCM       [45] XOR-BASE-DATA-KDF
+[50] RSA-OAEP      [51] ECIES         [52] ARIA-CTR      [53] SEED-CTR
+[54] AES-XTS
+[60] AES-KW        [61] AES-KWP       [64] AES-KEY-WRAP
+[70] SM4-ECB       [71] SM4-CBC       [72] SM4-CBC-PAD
+Select mechanism for encryption: 60
+Enter name of file to encrypt: aeskey.bin
+Use external IV? [0 = no, 1 = yes]: 0
+
+Enter key to use (0 to list available objects) : 309
+
+Encrypted data stored in file ENCRYPT.BIN
+Status: Doing great, no errors (CKR_OK)
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Here we unwrap and Import the key in HSM<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+TOKEN:
+    ( 1) Open Session  ( 2) Close Session  ( 3) Login
+    ( 4) Logout        ( 5) Change PIN     ( 6) Init Token
+    ( 7) Init Pin      ( 8) Mechanism List ( 9) Mechanism Info
+    (10) Get Info      (11) Slot Info      (12) Token Info
+    (13) Session Info  (14) Get Slot List  (15) Wait for Slot Event
+    (16) Token Status  (17) SessionCancel  (18) Factory Reset
+    (19) CloneMofN     (33) Token Insert   (34) Token Delete
+    (36) Show Roles    (37) Show Role Configuration Policies
+    (38) Show Role State   (39) Get OUID   (140) Get Handle
+    (58) HSM Zeroize       (59) Token Zeroize
+    (160) Show License List   (161) QueryLicense   (162) HSM Stats
+    (163) LogoutOther
+OBJECT MANAGEMENT:
+    (20) Create object (21) Copy object    (22) Destroy object
+    (23) Object size   (24) Get attribute  (25) Set attribute
+                       (26) Find object    (27) Display Object
+    (30) Modify Usage Count         (31) Destroy Multiple Objects
+    (32) Extract Public Key         (35) Import Public Key
+SECURITY:
+    (40) Encrypt file  (41) Decrypt file   (42) Sign
+    (43) Verify        (44) Hash file      (45) Simple Generate Key
+    (46) Digest Key
+HIGH AVAILABILITY RECOVERY :
+    (50) HA Recovery Init       (51) HA Recovery Login     (52) HA Group Status
+POLICY:
+   (53) Show Partition Policies     (54) Set Partition Policies
+   (55) Show HSM Policies (56) Set HSM Policies (57) Set Destructive HSM Policies
+KEY:
+    (60) Wrap key      (61) Unwrap key     (62) Generate random number
+    (63) Derive Key    (64) PBE Key Gen    (65) Create known keys
+    (66) Seed RNG      (67) EC User Defined Curves
+    (68) SM2 User Defined Curves
+    (69) Translate key
+CA:
+    (70) Set Domain    (71) Clone Key      (72) Set MofN
+    (73) Generate MofN (74) Activate MofN  (75) Generate Token Keys
+                                           (77) Sign Token Cert
+    (78) Generate CertCo Cert              (79) Modify MofN
+    (85) Put HSM Data/Parameter
+    (86) Dup. MofN Keys                    (87) Deactivate MofN
+    (88) Get Token Certificates            (89) Get HSM Data/Parameter
+    (112) Set Legacy Cloning Domain
+OTHERS:
+    (90) Self Test
+    (92) Get App ID
+    (93) Utilization Metrics
+    (94) Open Access    (95) Close Access
+    (97) Set App ID     (98) Options
+OFFBOARD KEY STORAGE:
+   (101) Extract Masked Object            (102) Insert Masked Object
+   (103) Multisign With Value             (104) Clone Object
+   (105) SIMExtract                       (106) SIMInsert
+   (107) SimMultiSign                     (108) SMKRollover
+   (109) CPv4 MigrateKeys
+   (118) Extract Object                   (119) Insert Object
+CLUSTER EXECUTION:
+   (111) Get Cluster State
+   (113) Lock Clustered Slot              (114) Unlock Clustered Slot
+PED INFO:
+   (120) Set Ped Info   (121) Get Ped Info (122) Init RPV
+   (123) Delete RPV
+AUDIT/LOG:
+   (130) Get Config     (131) Set Config   (132) Verify logs
+   (133) Get Time       (134) Set Time     (135) Import Secret
+   (136) Export Secret  (137) Init Audit   (138) Get Status
+   (139) Log External
+SRK:
+   (200) SRK Get State  (201) SRK Restore  (202) SRK Resplit
+   (203) SRK Zeroize    (204) SRK Enable/Disable
+Per Key Authorization:
+    (210) Authorize Key              (211) Set Authorization Data
+    (212) Reset Authorization Data   (213) Assign Key
+    (214) Increment Failed Auth Count
+Cloning API:
+    (215) CloneAsSourceInit          (216) CloneAsTargetInit
+    (217) CloneAsSource              (218) CloneAsTarget
+    (219) CPv4 MigrateKeys           (220) CPv4 Negotiate Session
+    (221) CPv4 Close Session
+IS6 Migration:
+    (300) Set IS6 Domain             (301) Insert IS6 Group Part
+    (302) Insert IS6 Member Part     (303) Insert IS6 Key
+
+(TITLE) menu titles, (99 or FULL) Full Help, (NONE) No help, (0 or EXIT) Quit
+
+Enter your choice : 61
+[1]DES-ECB        [2]DES-CBC        [3]DES3-ECB       [4]DES3-CBC
+                                    [7]CAST3-ECB      [8]CAST3-CBC
+[9]RSA            [10]TRANSLA       [11]DES3-CBC-PAD  [12]DES3-CBC-PAD-IPSEC
+[13]SEED-ECB      [14]SEED-CBC      [15]SEED-CBC-PAD  [16]DES-CBC-PAD
+[17]CAST3-CBC-PAD [18]CAST5-CBC-PAD [19]AES-ECB       [20]AES-CBC
+[21]AES-CBC-PAD   [22]AES-CBC-PAD-IPSEC [23]ARIA-ECB  [24]ARIA-CBC
+[25]ARIA-CBC-PAD  [26]RSA_OAEP      [27]SET_OAEP      [28]AES-CTR
+[29]DES3-CTR      [30]AES-KW        [31]AES-KWP       [34]AES-KEY-WRAP
+[35]AES-GCM
+Select mechanism for unwrapping: 30
+Use external IV? [0 = no, 1 = yes]: 0
+Type of key to be unwrapped
+DES[1]               DES2[2]                 DES3[3]
+RSA Private[4]       DSA Private[5]          DH Private[6]
+ECDSA Private[7]     SEED[8]                 AES[9]
+ARIA[10]             GENERIC Secret[11]      KCDSA Private[12]
+X9.42 DH Private[13] EC Edwards Private[14]  ECMONT Private[15]
+BIP32 Private[16]:
+RC2[17]              RC4[18]                 RC5[19]:
+CAST-3[20]           CAST-5[21]:
+9
+Token attribute [0-1]: 1
+Sensitive attribute [0-1]: 1
+Private attribute [0-1]: 1
+Encrypt attribute [0-1]: 1
+Sign attribute [0-1]: 1
+Wrap attribute [0-1]: 1
+Derive attribute [0-1]: 1
+Modifiable attribute [0-1]: 1
+Extractable attribute [0-1]: 1
+
+Enter handle of unwrapping key (0 to list available objects) : 309
+
+Enter the length in bytes of the key being unwrapped [0-4096]: 32
+
+Enter filename with key to unwrap: ENCRYPT.BIN
+
+Unwrapped key is        310 (0x00000136)
+Status: Doing great, no errors (CKR_OK)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Here we created the RSA key in HSM<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+TOKEN:
+    ( 1) Open Session  ( 2) Close Session  ( 3) Login
+    ( 4) Logout        ( 5) Change PIN     ( 6) Init Token
+    ( 7) Init Pin      ( 8) Mechanism List ( 9) Mechanism Info
+    (10) Get Info      (11) Slot Info      (12) Token Info
+    (13) Session Info  (14) Get Slot List  (15) Wait for Slot Event
+    (16) Token Status  (17) SessionCancel  (18) Factory Reset
+    (19) CloneMofN     (33) Token Insert   (34) Token Delete
+    (36) Show Roles    (37) Show Role Configuration Policies
+    (38) Show Role State   (39) Get OUID   (140) Get Handle
+    (58) HSM Zeroize       (59) Token Zeroize
+    (160) Show License List   (161) QueryLicense   (162) HSM Stats
+    (163) LogoutOther
+OBJECT MANAGEMENT:
+    (20) Create object (21) Copy object    (22) Destroy object
+    (23) Object size   (24) Get attribute  (25) Set attribute
+                       (26) Find object    (27) Display Object
+    (30) Modify Usage Count         (31) Destroy Multiple Objects
+    (32) Extract Public Key         (35) Import Public Key
+SECURITY:
+    (40) Encrypt file  (41) Decrypt file   (42) Sign
+    (43) Verify        (44) Hash file      (45) Simple Generate Key
+    (46) Digest Key
+HIGH AVAILABILITY RECOVERY :
+    (50) HA Recovery Init       (51) HA Recovery Login     (52) HA Group Status
+POLICY:
+   (53) Show Partition Policies     (54) Set Partition Policies
+   (55) Show HSM Policies (56) Set HSM Policies (57) Set Destructive HSM Policies
+KEY:
+    (60) Wrap key      (61) Unwrap key     (62) Generate random number
+    (63) Derive Key    (64) PBE Key Gen    (65) Create known keys
+    (66) Seed RNG      (67) EC User Defined Curves
+    (68) SM2 User Defined Curves
+    (69) Translate key
+CA:
+    (70) Set Domain    (71) Clone Key      (72) Set MofN
+    (73) Generate MofN (74) Activate MofN  (75) Generate Token Keys
+                                           (77) Sign Token Cert
+    (78) Generate CertCo Cert              (79) Modify MofN
+    (85) Put HSM Data/Parameter
+    (86) Dup. MofN Keys                    (87) Deactivate MofN
+    (88) Get Token Certificates            (89) Get HSM Data/Parameter
+    (112) Set Legacy Cloning Domain
+OTHERS:
+    (90) Self Test
+    (92) Get App ID
+    (93) Utilization Metrics
+    (94) Open Access    (95) Close Access
+    (97) Set App ID     (98) Options
+OFFBOARD KEY STORAGE:
+   (101) Extract Masked Object            (102) Insert Masked Object
+   (103) Multisign With Value             (104) Clone Object
+   (105) SIMExtract                       (106) SIMInsert
+   (107) SimMultiSign                     (108) SMKRollover
+   (109) CPv4 MigrateKeys
+   (118) Extract Object                   (119) Insert Object
+CLUSTER EXECUTION:
+   (111) Get Cluster State
+   (113) Lock Clustered Slot              (114) Unlock Clustered Slot
+PED INFO:
+   (120) Set Ped Info   (121) Get Ped Info (122) Init RPV
+   (123) Delete RPV
+AUDIT/LOG:
+   (130) Get Config     (131) Set Config   (132) Verify logs
+   (133) Get Time       (134) Set Time     (135) Import Secret
+   (136) Export Secret  (137) Init Audit   (138) Get Status
+   (139) Log External
+SRK:
+   (200) SRK Get State  (201) SRK Restore  (202) SRK Resplit
+   (203) SRK Zeroize    (204) SRK Enable/Disable
+Per Key Authorization:
+    (210) Authorize Key              (211) Set Authorization Data
+    (212) Reset Authorization Data   (213) Assign Key
+    (214) Increment Failed Auth Count
+Cloning API:
+    (215) CloneAsSourceInit          (216) CloneAsTargetInit
+    (217) CloneAsSource              (218) CloneAsTarget
+    (219) CPv4 MigrateKeys           (220) CPv4 Negotiate Session
+    (221) CPv4 Close Session
+IS6 Migration:
+    (300) Set IS6 Domain             (301) Insert IS6 Group Part
+    (302) Insert IS6 Member Part     (303) Insert IS6 Key
+
+(TITLE) menu titles, (99 or FULL) Full Help, (NONE) No help, (0 or EXIT) Quit
+
+
+Status: Doing great, no errors (CKR_OK)
+Enter your choice : 45
+Select type of key to generate
+[ 1] DES     [ 2] DES2   [ 3] DES3             [ 5]  CAST3
+[ 6] Generic [ 7] RSA    [ 8] DSA   [ 9] DH    [10]  CAST5
+[11] RC2     [12] RC4    [13] RC5   [14] SSL3  [15]  ECDSA
+[16] AES     [17] SEED   [18] KCDSA-1024   [19] KCDSA-2048
+[20] DSA Domain Param    [21] KCDSA Domain Param
+[22] RSA X9.31           [23] DH X9.42         [24] ARIA
+[25] DH PKCS Domain Param [26] RSA 186-3 Aux Primes
+[27] RSA 186-3 Primes     [28] DH X9.42 Domain Param
+[29] ECDSA with Extra Bits [30] EC Edwards 25519
+[31] EC Montgomery 25519
+[32] EC Edwards 448
+[33] EC Montgomery 448
+[40] SM4 [41] SM2
+> 7
+
+Enter Key Length in bits: 2048
+
+Enter Is Token Attribute [0-1]: 1
+
+Enter Is Sensitive Attribute [0-1]: 1
+
+Enter Is Private Attribute [0-1]: 1
+
+Enter Is Modifiable Attribute [0-1]: 1
+
+Enter Extractable Attribute [0-1]: 1
+
+Enter Encrypt/Decrypt Attribute [0-1]: 1
+
+Enter Sign/Verify Attribute [0-1]: 1
+
+Enter Wrap/Unwrap Attribute [0-1]: 1
+
+Enter Derive Attribute [0-1]: 1
+Generated RSA Public Key:        313 (0x00000139)
+Generated RSA Private Key:        320 (0x00000140)
+
+Status: Doing great, no errors (CKR_OK)
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Export the RSA key with AES-KWP via the openssl key(one we imported in HSM)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+Enter your choice :
+TOKEN:
+    ( 1) Open Session  ( 2) Close Session  ( 3) Login
+    ( 4) Logout        ( 5) Change PIN     ( 6) Init Token
+    ( 7) Init Pin      ( 8) Mechanism List ( 9) Mechanism Info
+    (10) Get Info      (11) Slot Info      (12) Token Info
+    (13) Session Info  (14) Get Slot List  (15) Wait for Slot Event
+    (16) Token Status  (17) SessionCancel  (18) Factory Reset
+    (19) CloneMofN     (33) Token Insert   (34) Token Delete
+    (36) Show Roles    (37) Show Role Configuration Policies
+    (38) Show Role State   (39) Get OUID   (140) Get Handle
+    (58) HSM Zeroize       (59) Token Zeroize
+    (160) Show License List   (161) QueryLicense   (162) HSM Stats
+    (163) LogoutOther
+OBJECT MANAGEMENT:
+    (20) Create object (21) Copy object    (22) Destroy object
+    (23) Object size   (24) Get attribute  (25) Set attribute
+                       (26) Find object    (27) Display Object
+    (30) Modify Usage Count         (31) Destroy Multiple Objects
+    (32) Extract Public Key         (35) Import Public Key
+SECURITY:
+    (40) Encrypt file  (41) Decrypt file   (42) Sign
+    (43) Verify        (44) Hash file      (45) Simple Generate Key
+    (46) Digest Key
+HIGH AVAILABILITY RECOVERY :
+    (50) HA Recovery Init       (51) HA Recovery Login     (52) HA Group Status
+POLICY:
+   (53) Show Partition Policies     (54) Set Partition Policies
+   (55) Show HSM Policies (56) Set HSM Policies (57) Set Destructive HSM Policies
+KEY:
+    (60) Wrap key      (61) Unwrap key     (62) Generate random number
+    (63) Derive Key    (64) PBE Key Gen    (65) Create known keys
+    (66) Seed RNG      (67) EC User Defined Curves
+    (68) SM2 User Defined Curves
+    (69) Translate key
+CA:
+    (70) Set Domain    (71) Clone Key      (72) Set MofN
+    (73) Generate MofN (74) Activate MofN  (75) Generate Token Keys
+                                           (77) Sign Token Cert
+    (78) Generate CertCo Cert              (79) Modify MofN
+    (85) Put HSM Data/Parameter
+    (86) Dup. MofN Keys                    (87) Deactivate MofN
+    (88) Get Token Certificates            (89) Get HSM Data/Parameter
+    (112) Set Legacy Cloning Domain
+OTHERS:
+    (90) Self Test
+    (92) Get App ID
+    (93) Utilization Metrics
+    (94) Open Access    (95) Close Access
+    (97) Set App ID     (98) Options
+OFFBOARD KEY STORAGE:
+   (101) Extract Masked Object            (102) Insert Masked Object
+   (103) Multisign With Value             (104) Clone Object
+   (105) SIMExtract                       (106) SIMInsert
+   (107) SimMultiSign                     (108) SMKRollover
+   (109) CPv4 MigrateKeys
+   (118) Extract Object                   (119) Insert Object
+CLUSTER EXECUTION:
+   (111) Get Cluster State
+   (113) Lock Clustered Slot              (114) Unlock Clustered Slot
+PED INFO:
+   (120) Set Ped Info   (121) Get Ped Info (122) Init RPV
+   (123) Delete RPV
+AUDIT/LOG:
+   (130) Get Config     (131) Set Config   (132) Verify logs
+   (133) Get Time       (134) Set Time     (135) Import Secret
+   (136) Export Secret  (137) Init Audit   (138) Get Status
+   (139) Log External
+SRK:
+   (200) SRK Get State  (201) SRK Restore  (202) SRK Resplit
+   (203) SRK Zeroize    (204) SRK Enable/Disable
+Per Key Authorization:
+    (210) Authorize Key              (211) Set Authorization Data
+    (212) Reset Authorization Data   (213) Assign Key
+    (214) Increment Failed Auth Count
+Cloning API:
+    (215) CloneAsSourceInit          (216) CloneAsTargetInit
+    (217) CloneAsSource              (218) CloneAsTarget
+    (219) CPv4 MigrateKeys           (220) CPv4 Negotiate Session
+    (221) CPv4 Close Session
+IS6 Migration:
+    (300) Set IS6 Domain             (301) Insert IS6 Group Part
+    (302) Insert IS6 Member Part     (303) Insert IS6 Key
+
+(TITLE) menu titles, (99 or FULL) Full Help, (NONE) No help, (0 or EXIT) Quit
+
+Enter your choice : 60
+[1]DES-ECB        [2]DES-CBC        [3]DES3-ECB       [4]DES3-CBC
+                                    [7]CAST3-ECB      [8]CAST3-CBC
+[9]RSA            [10]TRANSLA       [11]DES3-CBC-PAD  [12]DES3-CBC-PAD-IPSEC
+[13]SEED-ECB      [14]SEED-CBC      [15]SEED-CBC-PAD  [16]DES-CBC-PAD
+[17]CAST3-CBC-PAD [18]CAST5-CBC-PAD [19]AES-ECB       [20]AES-CBC
+[21]AES-CBC-PAD   [22]AES-CBC-PAD-IPSEC [23]ARIA-ECB  [24]ARIA-CBC
+[25]ARIA-CBC-PAD  [26]RSA_OAEP      [27]SET_OAEP      [28]AES-CTR
+[29]DES3-CTR      [30]AES-KW        [31]AES-KWP       [34]AES-KEY-WRAP
+[35]AES-GCM
+Select mechanism for wrapping: 31
+Use external IV? [0 = no, 1 = yes]: 0
+
+Enter handle of wrapping key (0 to list available objects) : 310
+
+Enter handle of key to wrap (0 to list available objects) : 320
+Wrapped key was saved in file wrapped.key
+
+Status: Doing great, no errors (CKR_OK)
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+--> Unwrap the private key:
+
+	a. Check the hex output of the external aes key:
+		xxd -p -c 32 aes256.key
+
+	b. Decrypt the wrapped private key:
+		openssl enc -d -id-aes256-wrap-pad -K <aes_key_hex> -in wrapped.key -out unwrapped.key
+		e.g.:
+		openssl enc -d -id-aes256-wrap-pad -K f9009fe61e7f938af2c87c5d6300e080a80c2004793f941df91dfd28789e5e92 -in wrapped.key -out unwrapped.key
+
+
+--> Check the unwrapped private key:
+
+openssl pkey -inform der -in unwrapped.key
