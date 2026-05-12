@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 5%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 238 76% 64%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 217 33% 20%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 238 76% 64%;
+    --radius: 0.5rem;
+
+    /* Sidebar */
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 238 76% 64%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 15%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 217 33% 15%;
+    --sidebar-ring: 238 76% 64%;
+  }
+
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 238 76% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 238 76% 55%;
+    --sidebar-background: 240 5% 96%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 238 76% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 92%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 238 76% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(51 65 85) transparent;
+  }
+}
+
+@layer components {
+  /* Enterprise card styles */
+  .enterprise-card {
+    @apply bg-slate-900 border border-slate-800 rounded-xl p-4;
+  }
+
+  .enterprise-card-hover {
+    @apply enterprise-card transition-all duration-200 hover:border-slate-700 hover:bg-slate-800/50;
+  }
+
+  /* Grid background pattern */
+  .enterprise-grid-bg {
+    background-image: linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Glow effects */
+  .glow-indigo {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  }
+
+  .glow-violet {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+  }
+
+  /* Status dot */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+  .status-dot-active {
+    @apply status-dot bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)];
+  }
+  .status-dot-warning {
+    @apply status-dot bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)];
+  }
+  .status-dot-error {
+    @apply status-dot bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.6)];
+  }
+  .status-dot-inactive {
+    @apply status-dot bg-slate-500;
+  }
+
+  /* Method badge base */
+  .method-badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold border;
+  }
+
+  /* Code block */
+  .code-block {
+    @apply font-mono text-sm bg-slate-950 border border-slate-800 rounded-lg p-4 overflow-x-auto;
+  }
+
+  /* Shimmer loading */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(99, 102, 241, 0.08) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* React Flow custom styles */
+  .react-flow__node {
+    border-radius: 8px;
+  }
+
+  .react-flow__minimap {
+    @apply bg-slate-900/90 border border-slate-700 rounded-lg;
+  }
+
+  .react-flow__controls {
+    @apply bg-slate-900/90 border border-slate-700 rounded-lg overflow-hidden;
+  }
+
+  .react-flow__controls-button {
+    @apply bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700;
+  }
+
+  .react-flow__background {
+    @apply opacity-30;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent;
+  }
+
+  /* Truncate with tooltip support */
+  .truncate-tooltip {
+    @apply truncate cursor-default;
+  }
+}
