@@ -57,7 +57,7 @@ export default function CatalogPage() {
   }, [activeSpecId, fetchEndpoints]);
 
   const handleSpecChange = useCallback(
-    (specId: string) => {
+    (specId: string | null) => {
       setActiveSpecId(specId);
     },
     [setActiveSpecId]

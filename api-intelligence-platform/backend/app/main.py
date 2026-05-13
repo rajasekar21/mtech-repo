@@ -56,14 +56,29 @@ async def lifespan(app: FastAPI):
     configure_logging()
     logger.info("Starting API Intelligence backend")
 
-    await init_db()
-    async with AsyncSessionLocal() as db:
-        await _ensure_dev_seed_data(db)
+    app.state.database_ready = False
+    app.state.database_error = None
+    app.state.neo4j_ready = False
+    app.state.neo4j_error = None
+
+    try:
+        await init_db()
+        async with AsyncSessionLocal() as db:
+            await _ensure_dev_seed_data(db)
+        app.state.database_ready = True
+    except Exception as exc:
+        app.state.database_error = str(exc)
+        logger.warning("Database startup skipped", error=str(exc))
 
     try:
         await neo4j_driver.connect()
-        await init_neo4j_schema()
+        if neo4j_driver.is_available:
+            await init_neo4j_schema()
+            app.state.neo4j_ready = True
+        else:
+            app.state.neo4j_error = "Neo4j is not reachable."
     except Exception as exc:
+        app.state.neo4j_error = str(exc)
         logger.warning("Neo4j startup skipped", error=str(exc))
 
     yield
@@ -90,13 +105,27 @@ app.add_middleware(
 
 
 @app.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
+async def health() -> dict[str, object]:
+    database_ready = bool(getattr(app.state, "database_ready", False))
+    neo4j_ready = bool(getattr(app.state, "neo4j_ready", False))
+    return {
+        "status": "ok" if database_ready else "degraded",
+        "services": {
+            "database": {
+                "ready": database_ready,
+                "error": getattr(app.state, "database_error", None),
+            },
+            "neo4j": {
+                "ready": neo4j_ready,
+                "error": getattr(app.state, "neo4j_error", None),
+            },
+        },
+    }
 
 
 @app.get("/api/health")
-async def api_health() -> dict[str, str]:
-    return {"status": "ok"}
+async def api_health() -> dict[str, object]:
+    return await health()
 
 
 # Frontend currently calls /api/*. Keep /api/v1/* compatibility too.

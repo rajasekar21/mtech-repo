@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { get, post, setToken, removeToken } from "@/lib/api";
+import { get as apiGet, post, setToken, removeToken } from "@/lib/api";
 import type { User, AuthTokens, LoginRequest } from "@/types";
 
 interface AuthState {
@@ -17,7 +17,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get: () => AuthState) => ({
+    (set, getState: () => AuthState) => ({
       user: null,
       token: null,
       isLoading: false,
@@ -30,11 +30,13 @@ export const useAuthStore = create<AuthState>()(
           const tokens = await post<AuthTokens>("/api/auth/login", loginReq);
           setToken(tokens.access_token);
           set({ token: tokens.access_token, isLoading: false });
-          await get<void>("/api/auth/me").then((user) => {
-            set({ user: user as unknown as User });
-          }).catch(() => {
+          await apiGet<User>("/api/auth/me")
+            .then((user) => {
+              set({ user });
+            })
+            .catch(() => {
             // User fetch failed, but login was successful
-          });
+            });
         } catch (err) {
           const message =
             err instanceof Error
@@ -54,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       fetchMe: async () => {
-        const state = get();
+        const state = getState();
         if (!state.token) return;
         set({ isLoading: true });
         try {

@@ -75,15 +75,18 @@ async def init_db() -> None:
     import app.models.api_spec  # noqa: F401
     import app.models.knowledge  # noqa: F401
 
-    async with async_engine.begin() as conn:
-        # Create pgvector extension if available
-        try:
-            await conn.execute(
+    # Try to enable pgvector separately so a missing extension does not poison
+    # the metadata creation transaction on developer machines.
+    try:
+        async with async_engine.connect() as conn:
+            autocommit_conn = await conn.execution_options(isolation_level="AUTOCOMMIT")
+            await autocommit_conn.execute(
                 __import__("sqlalchemy").text("CREATE EXTENSION IF NOT EXISTS vector")
             )
             logger.info("pgvector extension ensured")
-        except Exception as exc:
-            logger.warning("Could not create pgvector extension", error=str(exc))
+    except Exception as exc:
+        logger.warning("Could not create pgvector extension", error=str(exc))
 
+    async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         logger.info("Database tables initialised")

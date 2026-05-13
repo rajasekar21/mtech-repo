@@ -21,9 +21,11 @@ class Neo4jDriver:
 
     def __init__(self) -> None:
         self._driver: Optional[AsyncDriver] = None
+        self._available: bool = False
 
     async def connect(self) -> None:
         """Initialise the async Neo4j driver."""
+        self._available = False
         self._driver = AsyncGraphDatabase.driver(
             settings.NEO4J_URI,
             auth=(settings.NEO4J_USER, settings.NEO4J_PASSWORD),
@@ -32,6 +34,7 @@ class Neo4jDriver:
         # Verify connectivity
         try:
             await self._driver.verify_connectivity()
+            self._available = True
             logger.info("Neo4j driver connected", uri=settings.NEO4J_URI)
         except ServiceUnavailable as exc:
             logger.error("Neo4j not reachable — continuing without graph", error=str(exc))
@@ -41,12 +44,18 @@ class Neo4jDriver:
         if self._driver:
             await self._driver.close()
             self._driver = None
+            self._available = False
             logger.info("Neo4j driver closed")
+
+    @property
+    def is_available(self) -> bool:
+        """Return whether connectivity verification succeeded."""
+        return self._available
 
     @asynccontextmanager
     async def session(self, database: str = "neo4j"):
         """Async context manager that yields a Neo4j AsyncSession."""
-        if self._driver is None:
+        if self._driver is None or not self._available:
             raise RuntimeError("Neo4j driver is not initialised — call connect() first")
         async with self._driver.session(database=database) as session:
             yield session
@@ -67,7 +76,7 @@ class Neo4jDriver:
         Returns:
             List of record dicts.
         """
-        if self._driver is None:
+        if self._driver is None or not self._available:
             raise RuntimeError("Neo4j driver not initialised")
         async with self._driver.session(database=database) as session:
             result = await session.run(query, params or {})

@@ -9,6 +9,7 @@ from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.config import settings
 from app.db.database import Base
 
 try:
@@ -225,7 +226,7 @@ class DocumentChunk(Base):
         DateTime(timezone=True), default=_utcnow, server_default=func.now()
     )
 
-    if _VECTOR_AVAILABLE:
+    if _VECTOR_AVAILABLE and settings.PGVECTOR_ENABLED:
         embedding: Mapped[Optional[list[float]]] = mapped_column(
             Vector(1536), nullable=True
         )

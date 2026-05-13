@@ -23,6 +23,10 @@ class Settings(BaseSettings):
         default="postgresql+asyncpg://postgres:postgres@localhost:5432/api_intelligence",
         description="Async PostgreSQL connection string",
     )
+    PGVECTOR_ENABLED: bool = Field(
+        default=False,
+        description="Enable pgvector-specific database types and operators",
+    )
 
     # ------------------------------------------------------------------ #
     # Neo4j

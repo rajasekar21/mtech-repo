@@ -18,6 +18,7 @@ from fastapi import (
     Form,
     HTTPException,
     Query,
+    Request,
     UploadFile,
     status,
 )
@@ -38,7 +39,21 @@ from app.schemas.auth import LoginRequest, TokenResponse, UserResponse
 from app.schemas.catalog import ApiSpecCreate
 from app.services.catalog_service import CatalogService
 
-router = APIRouter()
+async def require_database_ready(request: Request) -> None:
+    """Return a clear 503 when the API is running without database access."""
+    if not getattr(request.app.state, "database_ready", False):
+        detail = getattr(
+            request.app.state,
+            "database_error",
+            "Database is unavailable.",
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database unavailable: {detail}",
+        )
+
+
+router = APIRouter(dependencies=[Depends(require_database_ready)])
 catalog_service = CatalogService()
 
 

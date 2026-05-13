@@ -20,13 +20,13 @@ logger = get_logger(__name__)
 # --------------------------------------------------------------------------- #
 # Password hashing
 # --------------------------------------------------------------------------- #
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
 def get_password_hash(password: str) -> str:
-    """Return bcrypt hash of *password*."""
+    """Return password hash for *password*."""
     return pwd_context.hash(password)
 
 
