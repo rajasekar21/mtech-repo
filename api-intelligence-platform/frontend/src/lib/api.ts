@@ -2,9 +2,15 @@ import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "ax
 import Cookies from "js-cookie";
 
 const TOKEN_KEY = "api_intelligence_token";
+const DEFAULT_API_BASE_URL = "http://localhost:8000";
+
+function normalizeApiBaseUrl(rawBaseUrl?: string): string {
+  const baseUrl = (rawBaseUrl || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
+  return baseUrl.replace(/\/api(?:\/v1)?$/i, "");
+}
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+  baseURL: normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL),
   headers: {
     "Content-Type": "application/json",
   },
@@ -121,9 +127,8 @@ export async function uploadFile<T>(
       formData.append(key, value);
     });
   }
-  const response = await apiClient.post<T>(url, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  // Let the browser set the multipart boundary for FormData uploads.
+  const response = await apiClient.post<T>(url, formData);
   return response.data;
 }
 

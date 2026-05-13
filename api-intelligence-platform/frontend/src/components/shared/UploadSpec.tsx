@@ -4,13 +4,15 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { useCatalogStore } from "@/store/catalog";
+import { useUIStore } from "@/store/ui";
 
 interface UploadSpecProps {
   onClose: () => void;
 }
 
 export default function UploadSpec({ onClose }: UploadSpecProps) {
-  const { uploadSpec, isUploading } = useCatalogStore();
+  const { uploadSpec, fetchEndpoints, isUploading } = useCatalogStore();
+  const { setActiveSpecId } = useUIStore();
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [version, setVersion] = useState("");
@@ -18,13 +20,21 @@ export default function UploadSpec({ onClose }: UploadSpecProps) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!file || !name || !version) {
-      toast.error("Name, version, and file are required.");
+    if (!file) {
+      toast.error("A specification file is required.");
       return;
     }
 
     try {
-      await uploadSpec(file, { name, version, description });
+      const resolvedName =
+        name.trim() || file.name.replace(/\.[^.]+$/, "") || "Uploaded Spec";
+      const spec = await uploadSpec(file, {
+        name: resolvedName,
+        version: version.trim(),
+        description,
+      });
+      setActiveSpecId(spec.id);
+      await fetchEndpoints(spec.id);
       toast.success("Specification uploaded.");
       onClose();
     } catch (error) {
@@ -63,7 +73,7 @@ export default function UploadSpec({ onClose }: UploadSpecProps) {
           <input
             value={version}
             onChange={(event) => setVersion(event.target.value)}
-            placeholder="Version"
+            placeholder="Version (optional)"
             className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200"
           />
           <textarea
@@ -75,7 +85,13 @@ export default function UploadSpec({ onClose }: UploadSpecProps) {
           />
           <input
             type="file"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            onChange={(event) => {
+              const nextFile = event.target.files?.[0] ?? null;
+              setFile(nextFile);
+              if (nextFile && !name.trim()) {
+                setName(nextFile.name.replace(/\.[^.]+$/, ""));
+              }
+            }}
             className="block w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-white"
           />
 

@@ -110,7 +110,7 @@ class CatalogService:
         total_result = await db.execute(count_stmt)
         total = total_result.scalar_one()
 
-        stmt = select(ApiSpec).order_by(ApiSpec.created_at.desc())
+        stmt = select(ApiSpec).options(selectinload(ApiSpec.endpoints)).order_by(ApiSpec.created_at.desc())
         if filters:
             stmt = stmt.where(and_(*filters))
         stmt = stmt.offset((page - 1) * size).limit(size)
