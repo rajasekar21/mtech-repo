@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Intelligence Platform</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --surface2:  #222638;
+    --border:    #2e3248;
+    --primary:   #6366f1;
+    --primary-l: #818cf8;
+    --green:     #22c55e;
+    --amber:     #f59e0b;
+    --red:       #ef4444;
+    --text:      #e2e8f0;
+    --muted:     #94a3b8;
+    --radius:    8px;
+  }
+
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── Layout ── */
+  .app { display: grid; grid-template-rows: 56px 1fr; height: 100vh; }
+
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px; padding: 0 20px;
+  }
+  header h1 { font-size: 16px; font-weight: 700; color: var(--primary-l); flex: 1; }
+  header .subtitle { font-size: 11px; color: var(--muted); }
+
+  .main { display: grid; grid-template-columns: 260px 1fr; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sidebar-section { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .sidebar-title { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+
+  .upload-area {
+    border: 1.5px dashed var(--border); border-radius: var(--radius);
+    padding: 14px; text-align: center; cursor: pointer; transition: border-color .2s;
+  }
+  .upload-area:hover, .upload-area.drag { border-color: var(--primary); }
+  .upload-area input { display: none; }
+  .upload-area .icon { font-size: 22px; margin-bottom: 4px; }
+  .upload-area p { font-size: 11px; color: var(--muted); }
+  .upload-area .hint { font-size: 10px; color: var(--border); margin-top: 3px; }
+
+  .name-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 5px; padding: 6px 8px; color: var(--text); font-size: 12px;
+    margin-top: 8px;
+  }
+  .name-input::placeholder { color: var(--muted); }
+
+  .btn {
+    width: 100%; padding: 7px; background: var(--primary); color: #fff;
+    border: none; border-radius: 5px; font-size: 12px; font-weight: 600;
+    cursor: pointer; margin-top: 8px; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn:disabled { opacity: .4; cursor: default; }
+
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; display: none; }
+  .progress-fill { height: 100%; background: var(--primary); width: 0; transition: width .3s; }
+
+  .spec-list { flex: 1; overflow-y: auto; padding: 8px 10px; }
+  .spec-item {
+    padding: 9px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid transparent; margin-bottom: 4px; transition: all .15s;
+  }
+  .spec-item:hover { background: var(--surface2); }
+  .spec-item.active { background: var(--surface2); border-color: var(--primary); }
+  .spec-item .spec-name { font-size: 12px; font-weight: 600; }
+  .spec-item .spec-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .spec-item .del-btn { float: right; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; }
+  .spec-item .del-btn:hover { color: var(--red); }
+
+  /* ── Content ── */
+  .content { display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .search-wrap { flex: 1; position: relative; }
+  .search-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 12px 7px 34px; color: var(--text); font-size: 13px;
+    transition: border-color .15s;
+  }
+  .search-input:focus { outline: none; border-color: var(--primary); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+
+  .tab-group { display: flex; gap: 4px; }
+  .tab {
+    padding: 6px 12px; border-radius: 5px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border); color: var(--muted);
+    background: none; transition: all .15s;
+  }
+  .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  .count-badge {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 4px 10px; font-size: 11px; color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── API list ── */
+  .api-panel { flex: 1; overflow-y: auto; padding: 12px 16px; }
+
+  /* Empty state */
+  .empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 10px; color: var(--muted);
+  }
+  .empty .big-icon { font-size: 48px; }
+  .empty p { font-size: 13px; }
+
+  /* API card */
+  .api-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 8px; overflow: hidden;
+  }
+  .api-header {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    cursor: pointer; user-select: none; transition: background .15s;
+  }
+  .api-header:hover { background: var(--surface2); }
+  .api-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+    letter-spacing: .5px; flex-shrink: 0;
+  }
+  .api-badge.req  { background: #1e3a5f; color: #93c5fd; border: 1px solid #3b82f6; }
+  .api-badge.resp { background: #14532d; color: #86efac; border: 1px solid #22c55e; }
+  .api-badge.gen  { background: #2e1065; color: #e9d5ff; border: 1px solid #a855f7; }
+  .api-name { font-size: 13px; font-weight: 700; flex: 1; }
+  .api-section { font-size: 10px; color: var(--muted); }
+  .api-chevron { color: var(--muted); font-size: 12px; transition: transform .2s; }
+  .api-card.open .api-chevron { transform: rotate(90deg); }
+
+  .api-body { display: none; padding: 0 14px 12px; border-top: 1px solid var(--border); }
+  .api-card.open .api-body { display: block; }
+  .api-desc { font-size: 11px; color: var(--muted); margin: 8px 0 10px; line-height: 1.5; }
+
+  /* Field tables */
+  .field-section { margin-top: 10px; }
+  .field-section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px; padding: 3px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .field-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .field-table th {
+    text-align: left; padding: 5px 8px; background: var(--surface2);
+    color: var(--muted); font-weight: 600; font-size: 10px; letter-spacing: .5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .field-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.4; }
+  .field-table tr:last-child td { border-bottom: none; }
+  .field-table tr:hover td { background: var(--surface2); }
+  .field-name { font-weight: 600; color: var(--primary-l); font-family: monospace; font-size: 11px; }
+  .field-type { color: var(--amber); font-family: monospace; }
+  .mandatory-y { color: var(--green); font-weight: 700; }
+  .mandatory-n { color: var(--muted); }
+  .no-fields { font-size: 11px; color: var(--muted); font-style: italic; padding: 6px 0; }
+
+  /* highlight matching text */
+  mark { background: #fbbf2433; color: #fde68a; border-radius: 2px; padding: 0 1px; }
+
+  /* ── Search results view ── */
+  .search-result {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 8px; padding: 12px 14px;
+  }
+  .sr-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .sr-api-name { font-size: 13px; font-weight: 700; }
+  .sr-spec { font-size: 10px; color: var(--muted); background: var(--surface2); padding: 2px 6px; border-radius: 3px; }
+  .sr-section { font-size: 10px; color: var(--muted); }
+  .sr-match-label { font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); margin-top: 8px; margin-bottom: 4px; }
+  .match-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 3px 8px; margin: 2px; font-size: 11px;
+  }
+  .match-pill .pill-name { color: var(--primary-l); font-family: monospace; font-weight: 600; }
+  .match-pill .pill-type { color: var(--amber); font-size: 10px; }
+  .match-pill .pill-req  { font-size: 9px; font-weight: 700; color: #93c5fd; }
+  .match-pill .pill-resp { font-size: 9px; font-weight: 700; color: #86efac; }
+  .match-pill .pill-desc { color: var(--muted); font-size: 10px; }
+  .name-match-row { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .result-count { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px;
+    font-size: 12px; color: var(--text); display: none; z-index: 999;
+    box-shadow: 0 4px 20px #0007;
+  }
+  .toast.show { display: block; }
+  .toast.error { border-color: var(--red); color: var(--red); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <h1>⚡ API Intelligence Platform</h1>
+    <span class="subtitle">Upload API spec PDF → browse & search all fields</span>
+  </header>
+
+  <div class="main">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <!-- Upload -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">Upload Specification</div>
+        <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()"
+             ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <input type="file" id="fileInput" accept=".pdf" onchange="onFileSelected(event)">
+          <div class="icon">📄</div>
+          <p id="dropLabel">Drop PDF here or click to browse</p>
+          <div class="hint">PDF only · UPI spec, OpenAPI, Swagger docs</div>
+        </div>
+        <input type="text" class="name-input" id="specName" placeholder="Spec name (optional)">
+        <button class="btn" id="uploadBtn" onclick="uploadSpec()" disabled>Upload &amp; Parse</button>
+        <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <!-- Spec list -->
+      <div class="sidebar-section" style="padding-bottom:6px">
+        <div class="sidebar-title">Uploaded Specs</div>
+      </div>
+      <div class="spec-list" id="specList">
+        <div class="empty" style="height:80px"><p>No specs uploaded yet</p></div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput"
+                 placeholder="Search field name, e.g. mobilenumber, txnId, vpa, amount …"
+                 oninput="onSearch()" autocomplete="off">
+        </div>
+        <div class="tab-group">
+          <button class="tab active" id="tabBrowse" onclick="switchTab('browse')">Browse</button>
+          <button class="tab" id="tabSearch" onclick="switchTab('search')">Search Results</button>
+        </div>
+        <div class="count-badge" id="countBadge">—</div>
+      </div>
+
+      <!-- API Panel -->
+      <div class="api-panel" id="apiPanel">
+        <div class="empty">
+          <div class="big-icon">📋</div>
+          <p>Select a spec from the sidebar to browse APIs</p>
+          <p style="font-size:11px">or upload a PDF to get started</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';   // same origin
+let specs       = [];
+let activeSpec  = null;
+let currentApis = [];
+let searchTimer = null;
+let activeTab   = 'browse';
+let selectedFile = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.onload = () => loadSpecs();
+
+async function loadSpecs() {
+  try {
+    const res = await fetch(`${API}/api/specs`);
+    specs = await res.json();
+    renderSpecList();
+    if (specs.length && !activeSpec) selectSpec(specs[0].id);
+  } catch(e) { showToast('Could not connect to backend', 'error'); }
+}
+
+// ── Drag & Drop / File select ─────────────────────────────────────────────────
+function onDragOver(e)  { e.preventDefault(); document.getElementById('dropZone').classList.add('drag'); }
+function onDragLeave(e) { document.getElementById('dropZone').classList.remove('drag'); }
+function onDrop(e)      {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(f);
+}
+function onFileSelected(e) { if(e.target.files[0]) setFile(e.target.files[0]); }
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('dropLabel').textContent = f.name;
+  document.getElementById('uploadBtn').disabled = false;
+  if (!document.getElementById('specName').value)
+    document.getElementById('specName').value = f.name.replace('.pdf','');
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+async function uploadSpec() {
+  if (!selectedFile) return;
+  const btn   = document.getElementById('uploadBtn');
+  const pbar  = document.getElementById('progressBar');
+  const pfill = document.getElementById('progressFill');
+
+  btn.disabled = true;
+  pbar.style.display = 'block';
+  pfill.style.width = '30%';
+
+  const fd = new FormData();
+  fd.append('file', selectedFile);
+  fd.append('name', document.getElementById('specName').value || selectedFile.name);
+
+  try {
+    pfill.style.width = '60%';
+    const res  = await fetch(`${API}/api/upload`, { method:'POST', body: fd });
+    pfill.style.width = '100%';
+    if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Upload failed'); }
+    const data = await res.json();
+    showToast(`✓ Parsed ${data.api_count} APIs from ${data.page_count} pages`, 'success');
+    await loadSpecs();
+    selectSpec(data.spec_id);
+    // Reset
+    selectedFile = null;
+    document.getElementById('dropLabel').textContent = 'Drop PDF here or click to browse';
+    document.getElementById('specName').value = '';
+    document.getElementById('fileInput').value = '';
+  } catch(e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => { pbar.style.display = 'none'; pfill.style.width = '0'; }, 800);
+  }
+}
+
+// ── Spec list ─────────────────────────────────────────────────────────────────
+function renderSpecList() {
+  const el = document.getElementById('specList');
+  if (!specs.length) {
+    el.innerHTML = '<div class="empty" style="height:80px"><p>No specs uploaded yet</p></div>';
+    return;
+  }
+  el.innerHTML = specs.map(s => `
+    <div class="spec-item ${activeSpec===s.id?'active':''}" onclick="selectSpec('${s.id}')">
+      <button class="del-btn" onclick="deleteSpec(event,'${s.id}')">✕</button>
+      <div class="spec-name">${esc(s.name)}</div>
+      <div class="spec-meta">${s.api_count} APIs · ${s.page_count} pages</div>
+    </div>
+  `).join('');
+}
+
+async function selectSpec(id) {
+  activeSpec = id;
+  renderSpecList();
+  try {
+    const res  = await fetch(`${API}/api/specs/${id}`);
+    const data = await res.json();
+    currentApis = data.apis;
+    switchTab('browse');
+    document.getElementById('searchInput').value = '';
+    renderApis(currentApis);
+  } catch(e) { showToast('Failed to load spec', 'error'); }
+}
+
+async function deleteSpec(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this spec?')) return;
+  await fetch(`${API}/api/specs/${id}`, { method:'DELETE' });
+  if (activeSpec === id) { activeSpec = null; currentApis = []; renderApis([]); }
+  await loadSpecs();
+}
+
+// ── Browse + Search tabs ──────────────────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tabBrowse').classList.toggle('active', tab==='browse');
+  document.getElementById('tabSearch').classList.toggle('active', tab==='search');
+  if (tab === 'browse') renderApis(currentApis);
+  else runSearch();
+}
+
+function onSearch() {
+  clearTimeout(searchTimer);
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) { switchTab('browse'); return; }
+  switchTab('search');
+  searchTimer = setTimeout(runSearch, 250);
+}
+
+async function runSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) { renderApis(currentApis); return; }
+  const qs = activeSpec ? `&spec_id=${activeSpec}` : '';
+  try {
+    const res     = await fetch(`${API}/api/search?q=${encodeURIComponent(q)}${qs}`);
+    const results = await res.json();
+    renderSearchResults(results, q);
+  } catch(e) { showToast('Search failed', 'error'); }
+}
+
+// ── Render APIs (browse view) ─────────────────────────────────────────────────
+function renderApis(apis) {
+  const panel = document.getElementById('apiPanel');
+  document.getElementById('countBadge').textContent = `${apis.length} API${apis.length!==1?'s':''}`;
+
+  if (!apis.length) {
+    const msg = activeSpec ? 'No APIs found' : 'Select a spec from the sidebar';
+    panel.innerHTML = `<div class="empty"><div class="big-icon">📋</div><p>${msg}</p></div>`;
+    return;
+  }
+
+  panel.innerHTML = apis.map(api => renderApiCard(api, false, '')).join('');
+}
+
+function renderApiCard(api, open, highlight) {
+  const badge = badgeHtml(api.name);
+  const reqF  = api.request_fields  || [];
+  const respF = api.response_fields || [];
+  return `
+  <div class="api-card${open?' open':''}">
+    <div class="api-header" onclick="toggleCard(this)">
+      ${badge}
+      <span class="api-name">${hl(esc(api.name), highlight)}</span>
+      ${api.section ? `<span class="api-section">§${api.section}</span>` : ''}
+      <span class="api-chevron">▶</span>
+    </div>
+    <div class="api-body">
+      ${api.description ? `<div class="api-desc">${esc(api.description)}</div>` : ''}
+      ${renderFieldTable('Request Parameters', reqF, highlight)}
+      ${renderFieldTable('Response Parameters', respF, highlight)}
+      ${!reqF.length && !respF.length ? '<p class="no-fields">No fields extracted from this section.</p>' : ''}
+    </div>
+  </div>`;
+}
+
+function renderFieldTable(title, fields, highlight) {
+  if (!fields.length) return '';
+  const rows = fields.map(f => `
+    <tr>
+      <td><span class="field-name">${hl(esc(f.name||''), highlight)}</span></td>
+      <td><span class="field-type">${esc(f.type||'')}</span></td>
+      <td>${esc(f.size||'')}</td>
+      <td class="${isMandatory(f.mandatory)?'mandatory-y':'mandatory-n'}">${esc(f.mandatory||'')}</td>
+      <td>${hl(esc(f.description||''), highlight)}</td>
+    </tr>`).join('');
+  return `
+  <div class="field-section">
+    <div class="field-section-title">${title} (${fields.length})</div>
+    <table class="field-table">
+      <thead><tr>
+        <th>Field Name</th><th>Type</th><th>Size</th><th>Mandatory</th><th>Description</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ── Render search results ─────────────────────────────────────────────────────
+function renderSearchResults(results, q) {
+  const panel = document.getElementById('apiPanel');
+  document.getElementById('countBadge').textContent = `${results.length} match${results.length!==1?'es':''}`;
+
+  if (!results.length) {
+    panel.innerHTML = `<div class="empty"><div class="big-icon">🔍</div><p>No results for "<strong>${esc(q)}</strong>"</p><p style="font-size:11px">Try a different field name or keyword</p></div>`;
+    return;
+  }
+
+  const countHtml = `<div class="result-count">Found "<strong>${esc(q)}</strong>" in <strong>${results.length}</strong> API${results.length!==1?'s':''}</div>`;
+  const cards = results.map(r => {
+    const reqPills  = r.request_matches.map(f => pillHtml(f, 'REQ',  q)).join('');
+    const respPills = r.response_matches.map(f => pillHtml(f, 'RESP', q)).join('');
+    const nameRow   = r.name_match ? `<div class="name-match-row">📌 Matched in API name / description</div>` : '';
+    return `
+    <div class="search-result">
+      <div class="sr-header">
+        ${badgeHtml(r.api_name)}
+        <span class="sr-api-name">${hl(esc(r.api_name), q)}</span>
+        ${r.section ? `<span class="sr-section">§${r.section}</span>` : ''}
+        <span class="sr-spec">${esc(r.spec_name||'')}</span>
+      </div>
+      ${r.description ? `<div style="font-size:11px;color:var(--muted);margin-bottom:6px">${esc(r.description)}</div>` : ''}
+      ${nameRow}
+      ${reqPills  ? `<div class="sr-match-label">Request Fields</div>${reqPills}`  : ''}
+      ${respPills ? `<div class="sr-match-label">Response Fields</div>${respPills}` : ''}
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = countHtml + cards;
+}
+
+function pillHtml(f, dir, q) {
+  const cls = dir==='REQ' ? 'pill-req' : 'pill-resp';
+  return `
+  <span class="match-pill">
+    <span class="${cls}">${dir}</span>
+    <span class="pill-name">${hl(esc(f.name||''), q)}</span>
+    ${f.type ? `<span class="pill-type">${esc(f.type)}</span>` : ''}
+    ${f.mandatory ? `<span class="mandatory-${isMandatory(f.mandatory)?'y':'n'}" style="font-size:9px">${esc(f.mandatory)}</span>` : ''}
+    ${f.description ? `<span class="pill-desc">— ${hl(esc(f.description.slice(0,60)+(f.description.length>60?'…':'')), q)}</span>` : ''}
+  </span>`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function toggleCard(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+function badgeHtml(name) {
+  const n = (name||'').toLowerCase();
+  const cls = n.startsWith('req') ? 'req' : n.startsWith('resp') ? 'resp' : 'gen';
+  const label = n.startsWith('req') ? 'REQ' : n.startsWith('resp') ? 'RESP' : 'API';
+  return `<span class="api-badge ${cls}">${label}</span>`;
+}
+
+function isMandatory(val) {
+  if (!val) return false;
+  const v = val.toLowerCase();
+  return v==='m' || v==='yes' || v==='mandatory' || v==='required' || v==='y';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function hl(text, query) {
+  if (!query) return text;
+  const safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(${safe})`, 'gi'), '<mark>$1</mark>');
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
