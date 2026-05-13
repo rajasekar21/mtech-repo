@@ -1,0 +1,10 @@
+backend/data/
+backend/uploads/
+backend/__pycache__/
+backend/*.pyc
+*.pyc
+__pycache__/
+.env
+node_modules/
+frontend/.next/
+frontend/tsconfig.tsbuildinfo
